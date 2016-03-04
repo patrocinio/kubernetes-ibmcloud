@@ -2,7 +2,7 @@
 #pip install --upgrade pip
 #pip install softlayer
 
-. ./deploy-kubernetes.cfg
+. ./kubernetes.cfg
 
 # Authenticates to SL
 echo "[softlayer]" > ~/.softlayer

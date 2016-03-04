@@ -2,7 +2,7 @@
 #pip install --upgrade pip
 #pip install softlayer
 
-. ./deploy-kubernetes.cfg
+. ./kubernetes.cfg
 
 # Authenticates to SL
 echo "[softlayer]" > ~/.softlayer
@@ -14,7 +14,7 @@ echo "timeout = 0" >> ~/.softlayer
 echo Using the following SoftLayer configuration
 slcli config show
 
-# Creates the kube master
+# Deletes the kube master
 TEMP_FILE=/tmp/destroy_kubernetes.out
 slcli vs list --domain $DOMAIN > $TEMP_FILE
 for id in `cat $TEMP_FILE | awk '{print $1}'`
