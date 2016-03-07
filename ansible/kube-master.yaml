@@ -1,0 +1,6 @@
+---
+- hosts: kube-master
+  remote_user: root
+  tasks:
+  - name: Configure EPEL release
+    yum: name=epel-release state=latest

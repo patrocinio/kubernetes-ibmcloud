@@ -11,7 +11,7 @@ function create_master {
 # Creates the kube master
 echo "Creating kube master"
 TEMP_FILE=/tmp/create-vs.out
-#yes | slcli vs create --hostname $KUBE_MASTER --domain $DOMAIN --cpu 1 --memory 1 --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST > $TEMP_FILE
+yes | slcli vs create --hostname $KUBE_MASTER --domain $DOMAIN --cpu 1 --memory 1 --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST > $TEMP_FILE
 #VS_ID=`grep -o "\bid.*\b" $TEMP_FILE | head -1 | awk '{print $2}'`
 
 echo "Waiting for virtual server $KUBE_MASTER to be ready"
@@ -46,7 +46,6 @@ PASSWORD=`grep root $TEMP_FILE | awk '{print $3}'`
 echo PASSWORD $PASSWORD
 
 # Obtain the IP address
-set -x
 IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
 
 # Generate SSH key
@@ -55,8 +54,17 @@ yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 # Log in to the machine
 sshpass -p $PASSWORD ssh-copy-id root@$IP_ADDRESS
 
-# Test connection
-ssh root@$IP_ADDRESS whoami
+# Update ansible hosts file
+ANSIBLE_CONFIG=./ansible/ansible.cfg
+HOSTS=/tmp/ansible-hosts
+echo > $HOSTS
+echo "[kube-master]" >> $HOSTS
+echo "$IP_ADDRESS ansible_user=root" >> $HOSTS
+
+# Execute kube-master playbook
+ansible-playbook ansible/kube-master.yaml
+
+
 
 
 
