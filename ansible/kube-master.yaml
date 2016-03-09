@@ -4,3 +4,9 @@
   tasks:
   - name: Configure EPEL release
     yum: name=epel-release state=latest
+  - name: Install ansible
+    yum: name=ansible state=latest
+  - name: Install git
+    yum: name=git state=latest
+  - name: Install netaddr
+    yum: name=python-netaddr state=latest
