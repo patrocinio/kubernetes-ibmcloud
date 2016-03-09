@@ -2,6 +2,10 @@
 - hosts: kube-master
   remote_user: root
   tasks:
+  - name: Build hosts file
+    lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_host }} {{item}}" state=present
+    when: hostvars[item].ansible_host is defined
+    with_items: groups['all']
   - name: Configure EPEL release
     yum: name=epel-release state=latest
   - name: Install ansible
@@ -10,3 +14,4 @@
     yum: name=git state=latest
   - name: Install netaddr
     yum: name=python-netaddr state=latest
+
