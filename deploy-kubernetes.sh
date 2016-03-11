@@ -59,9 +59,6 @@ obtain_root_pwd $KUBE_MASTER
 obtain_ip $KUBE_MASTER
 MASTER_IP=$IP_ADDRESS
 
-# Generate SSH key
-yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
-
 # Log in to the machine
 sshpass -p $PASSWORD ssh-copy-id root@$MASTER_IP
 
@@ -79,7 +76,9 @@ echo "[kube-node]" >> $HOSTS
 echo "kube-node ansible_host=$NODE_IP ansible_user=root" >> $HOSTS
 
 # Execute kube-master playbook
-ansible-playbook ansible/kube-master.yaml
+set -x
+ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node=$NODE_IP"
+
 }
 
 function configure_node {
@@ -90,9 +89,6 @@ obtain_root_pwd $KUBE_NODE
 # Get master IP address
 obtain_ip $KUBE_NODE
 NODE_IP=$IP_ADDRESS
-
-# Generate SSH key
-yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
 # Log in to the machine
 sshpass -p $PASSWORD ssh-copy-id root@$NODE_IP
@@ -115,8 +111,11 @@ slcli config show
 create_kube $KUBE_MASTER
 create_kube $KUBE_NODE
 
-configure_master
+# Generate SSH key
+yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+
 configure_node
+configure_master
 
 
 

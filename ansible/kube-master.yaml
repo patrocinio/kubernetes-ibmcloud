@@ -1,5 +1,7 @@
 ---
 - hosts: kube-master
+  vars:
+    kube_node: undefined
   remote_user: root
   tasks:
   - name: Build hosts file
@@ -14,4 +16,19 @@
     yum: name=git state=latest
   - name: Install netaddr
     yum: name=python-netaddr state=latest
+
+  - name: Remove SSH file
+    file: path=/root/.ssh/id_rsa state=absent
+
+  - name: Creating pub SSH keys
+    command: ssh-keygen -N '' -f /root/.ssh/id_rsa
+
+  - name: Downloading pub key
+    fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/id_rsa.tmp flat=yes
+
+  - name: Coping local key to kube-node
+    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node }} "cat >> /root/.ssh/authorized_keys"
+
+  - name: Deleting temporary files
+    local_action: command rm -f /tmp/id_rsa.tmp
 
