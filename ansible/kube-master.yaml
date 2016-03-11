@@ -29,6 +29,9 @@
   - name: Copy local key to kube-node
     local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node }} "cat >> /root/.ssh/authorized_keys"
 
+  - name: Copy local key to kube-master
+    shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+
   - name: Delete temporary files
     local_action: command rm -f /tmp/id_rsa.tmp
 
@@ -37,4 +40,13 @@
 
   - name: Set package manager
     replace: "dest=/root/kubernetes/ansible/group_vars/all.yml regexp='source_type: (.*)' replace='source_type: packageManager' backup=yes"
+
+  - name: Copy inventory file
+    copy: src=/tmp/inventory dest=/root/kubernetes/ansible
+
+  - name: Copy ansible.cfg
+    copy: src=/tmp/ansible.cfg dest=/root/.ansible.cfg
+
+  - name: Set up kubernetes - This may take a while...
+    shell: chdir=/root/kubernetes/ansible /root/kubernetes/ansible/setup.sh
 

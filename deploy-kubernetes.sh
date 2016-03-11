@@ -1,6 +1,6 @@
 # Installs the SoftLayer CLI
-#pip install --upgrade pip
-#pip install softlayer
+pip install --upgrade pip
+pip install softlayer
 
 KUBE_MASTER=kube-master
 KUBE_NODE=kube-node
@@ -17,6 +17,13 @@ yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu 1 --memory 1 --datace
 }
 
 # Args: $1: name
+function get_server_id {
+# Extract virtual server ID
+slcli vs list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
+VS_ID=`cat $TEMP_FILE | awk '{print $1}'`
+}
+
+# Args: $1: name
 function create_kube {
 # Check whether kube master exists
 TEMP_FILE=/tmp/deploy-kubernetes.out
@@ -30,14 +37,19 @@ else
 echo "$1 already created"
 fi
 
+get_server_id $1
+
 # Wait kube master to be ready
 echo "Waiting for virtual server $1 to be ready"
-slcli vs ready $1 --wait=$TIMEOUT
+slcli vs ready $VS_ID --wait=$TIMEOUT
 }
 
+# Arg $1: hostname
 function obtain_root_pwd {
+get_server_id $1
+
 # Obtain the root password
-slcli vs detail $1 --passwords > $TEMP_FILE
+slcli vs detail $VS_ID --passwords > $TEMP_FILE
 PASSWORD=`grep root $TEMP_FILE | awk '{print $3}'`
 echo PASSWORD $PASSWORD
 
@@ -45,8 +57,9 @@ echo PASSWORD $PASSWORD
 
 # Args $1: hostname
 function obtain_ip {
+get_server_id $1
 # Obtain the IP address
-slcli vs detail $1 --passwords > $TEMP_FILE
+slcli vs detail $VS_ID --passwords > $TEMP_FILE
 IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
 }
 
@@ -75,14 +88,30 @@ echo "kube-master ansible_host=$MASTER_IP ansible_user=root" >> $HOSTS
 echo "[kube-node]" >> $HOSTS
 echo "kube-node ansible_host=$NODE_IP ansible_user=root" >> $HOSTS
 
+# Create inventory file
+INVENTORY=/tmp/inventory
+echo > $INVENTORY
+echo "[masters]" >> $INVENTORY
+echo "kube-master" >> $INVENTORY
+echo >> $INVENTORY
+echo "[etcd]" >> $INVENTORY
+echo "kube-master" >> $INVENTORY
+echo >> $INVENTORY
+echo "[nodes]" >> $INVENTORY
+echo "kube-node" >> $INVENTORY
+
+# Create ansible.cfg
+ANSIBLE_CFG=/tmp/ansible.cfg
+echo > $ANSIBLE_CFG
+echo "[defaults]" >> $ANSIBLE_CFG
+echo "host_key_checking = False" >> $ANSIBLE_CFG
+
 # Execute kube-master playbook
-set -x
 ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node=$NODE_IP"
 
 }
 
 function configure_node {
-set -x
 # Get kube master password
 obtain_root_pwd $KUBE_NODE
 
@@ -116,6 +145,8 @@ yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
 configure_node
 configure_master
+
+echo "Congratulations! You can log on to the kube master by issuing ssh root@$MASTER_IP"
 
 
 
