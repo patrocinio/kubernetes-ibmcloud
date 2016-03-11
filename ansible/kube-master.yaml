@@ -23,12 +23,18 @@
   - name: Creating pub SSH keys
     command: ssh-keygen -N '' -f /root/.ssh/id_rsa
 
-  - name: Downloading pub key
+  - name: Download pub key
     fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/id_rsa.tmp flat=yes
 
-  - name: Coping local key to kube-node
+  - name: Copy local key to kube-node
     local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node }} "cat >> /root/.ssh/authorized_keys"
 
-  - name: Deleting temporary files
+  - name: Delete temporary files
     local_action: command rm -f /tmp/id_rsa.tmp
+
+  - name: Clone repository
+    git: repo=https://github.com/kubernetes/contrib.git dest=/root/kubernetes force=yes
+
+  - name: Set package manager
+    replace: "dest=/root/kubernetes/ansible/group_vars/all.yml regexp='source_type: (.*)' replace='source_type: packageManager' backup=yes"
 
