@@ -4,8 +4,8 @@ Follow this procedure:
 
 1. First clone this project
 2. Edit the kubernetes.cfg file to enter the following SoftLayer configuration
-* USER
-* API_KEY
+   * USER
+   * API_KEY
 3. Run the following command:
 `deploy-kubernetes.sh`
 
