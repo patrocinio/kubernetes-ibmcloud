@@ -26,8 +26,11 @@
   - name: Download pub key
     fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/id_rsa.tmp flat=yes
 
-  - name: Copy local key to kube-node
-    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node }} "cat >> /root/.ssh/authorized_keys"
+  - name: Copy local key to kube-node1
+    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node1 }} "cat >> /root/.ssh/authorized_keys"
+
+  - name: Copy local key to kube-node2
+    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node2 }} "cat >> /root/.ssh/authorized_keys"
 
   - name: Copy local key to kube-master
     shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys

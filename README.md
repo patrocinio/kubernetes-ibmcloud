@@ -6,7 +6,10 @@ Follow this procedure:
 2. Edit the kubernetes.cfg file to enter the following SoftLayer configuration
    * USER
    * API_KEY
-* (Optional) DATACENTER: Check http://www.softlayer.com/data-centers and look at the Ping/Trace Route column for the code. For example, the code for speedtest.wdc01.softlayer.com is wdc01
+   * (Optional) DATACENTER: Check http://www.softlayer.com/data-centers and look at the Ping/Trace Route column for the code. For example, the code for speedtest.wdc01.softlayer.com is wdc01
+   * (Optional) CPU: Define the number of CPIUs you want in each server
+   * (Optional) Memory: Define the amount of RAM (in MB) in each server
+
 3. Run the following command:
 `deploy-kubernetes.sh`
 

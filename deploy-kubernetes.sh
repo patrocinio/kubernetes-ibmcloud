@@ -3,7 +3,7 @@ pip install --upgrade pip
 pip install softlayer
 
 KUBE_MASTER=kube-master
-KUBE_NODE=kube-node
+KUBE_NODE_PREFIX=kube-node-
 TIMEOUT=600
 
 . ./kubernetes.cfg
@@ -11,9 +11,9 @@ TIMEOUT=600
 # Args: $1: name
 function create_server {
 # Creates the machine
-echo "Creating $1"
+echo "Creating $1 with $CPU cpus and $MEMORY MB of RAM"
 TEMP_FILE=/tmp/create-vs.out
-yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu 1 --memory 1 --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST > $TEMP_FILE
+yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu $CPU --memory $MEMORY --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST > $TEMP_FILE
 }
 
 # Args: $1: name
@@ -57,36 +57,42 @@ echo PASSWORD $PASSWORD
 
 # Args $1: hostname
 function obtain_ip {
+echo Obtaining IP address for $1
 get_server_id $1
 # Obtain the IP address
 slcli vs detail $VS_ID --passwords > $TEMP_FILE
 IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
 }
 
-
-function configure_master {
-# Get kube master password
-obtain_root_pwd $KUBE_MASTER
-
-# Get master IP address
-obtain_ip $KUBE_MASTER
-MASTER_IP=$IP_ADDRESS
-
-# Log in to the machine
-sshpass -p $PASSWORD ssh-copy-id root@$MASTER_IP
-
-# Get node IP address
-obtain_ip $KUBE_NODE
-NODE_IP=$IP_ADDRESS
-
+function update_hosts_file {
 # Update ansible hosts file
 echo Updating ansible hosts files
 HOSTS=/tmp/ansible-hosts
 echo > $HOSTS
 echo "[kube-master]" >> $HOSTS
-echo "kube-master ansible_host=$MASTER_IP ansible_user=root" >> $HOSTS
+obtain_ip $KUBE_MASTER
+MASTER_IP=$IP_ADDRESS
+echo "kube-master ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 echo "[kube-node]" >> $HOSTS
-echo "kube-node ansible_host=$NODE_IP ansible_user=root" >> $HOSTS
+
+# Get node IP address
+obtain_ip "${KUBE_NODE_PREFIX}1"
+NODE1_IP=$IP_ADDRESS
+echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+obtain_ip "${KUBE_NODE_PREFIX}2"
+NODE2_IP=$IP_ADDRESS
+echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+
+}
+
+function configure_master {
+# Get kube master password
+obtain_root_pwd $KUBE_MASTER
+
+# Log in to the machine
+sshpass -p $PASSWORD ssh-copy-id root@$MASTER_IP
+
+
 
 # Create inventory file
 INVENTORY=/tmp/inventory
@@ -98,7 +104,8 @@ echo "[etcd]" >> $INVENTORY
 echo "kube-master" >> $INVENTORY
 echo >> $INVENTORY
 echo "[nodes]" >> $INVENTORY
-echo "kube-node" >> $INVENTORY
+echo "kube-node-1" >> $INVENTORY
+echo "kube-node-2" >> $INVENTORY
 
 # Create ansible.cfg
 ANSIBLE_CFG=/tmp/ansible.cfg
@@ -107,23 +114,38 @@ echo "[defaults]" >> $ANSIBLE_CFG
 echo "host_key_checking = False" >> $ANSIBLE_CFG
 
 # Execute kube-master playbook
-ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node=$NODE_IP"
+ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP"
 
 }
 
+# Args $1 Node name
 function configure_node {
+echo Configuring node $1
+
 # Get kube master password
-obtain_root_pwd $KUBE_NODE
+obtain_root_pwd $1
 
 # Get master IP address
-obtain_ip $KUBE_NODE
+obtain_ip $1
 NODE_IP=$IP_ADDRESS
+echo IP Address: $NODE_IP
 
 # Log in to the machine
 sshpass -p $PASSWORD ssh-copy-id root@$NODE_IP
+}
+
+function configure_nodes {
+echo Configuring nodes
+configure_node "${KUBE_NODE_PREFIX}1"
+configure_node "${KUBE_NODE_PREFIX}2"
 
 # Execute kube-master playbook
 ansible-playbook ansible/kube-node.yaml
+}
+
+function create_nodes {
+create_kube "${KUBE_NODE_PREFIX}1"
+create_kube "${KUBE_NODE_PREFIX}2"
 }
 
 
@@ -138,12 +160,13 @@ echo Using the following SoftLayer configuration
 slcli config show
 
 create_kube $KUBE_MASTER
-create_kube $KUBE_NODE
+create_nodes
 
 # Generate SSH key
-yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+#yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
-configure_node
+update_hosts_file
+configure_nodes
 configure_master
 
 echo "Congratulations! You can log on to the kube master by issuing ssh root@$MASTER_IP"
