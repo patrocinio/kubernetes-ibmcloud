@@ -8,12 +8,31 @@ TIMEOUT=600
 
 . ./kubernetes.cfg
 
+# Args: $1: VLAN number
+function get_vlan_id {
+   VLAN_ID=`slcli vlan list | grep $1 | awk '{print $1}'`
+}
+
+# Args: $1: label $2: VLAN number
+function build_vlan_arg {
+if [ -z $2 ]; then
+    VLAN_ARG=""
+  else
+     get_vlan_id $2
+     VLAN_ARG="$1 $VLAN_ID"
+  fi
+}
+
 # Args: $1: name
 function create_server {
 # Creates the machine
 echo "Creating $1 with $CPU cpu(s) and $MEMORY MB of RAM"
 TEMP_FILE=/tmp/create-vs.out
-yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu $CPU --memory $MEMORY --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST > $TEMP_FILE
+build_vlan_arg "--vlan-private" $PRIVATE_VLAN
+PRIVATE_ARG=$VLAN_ARG
+build_vlan_arg "--vlan-public" $PUBLIC_VLAN
+PUBLIC_ARG=$VLAN_ARG
+yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu $CPU --memory $MEMORY --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
 }
 
 # Args: $1: name
