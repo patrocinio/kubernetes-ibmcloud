@@ -32,6 +32,9 @@
   - name: Copy local key to kube-node2
     local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node2 }} "cat >> /root/.ssh/authorized_keys"
 
+#  - name: Copy local key to kube-master2
+#    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_master2 }} "cat >> /root/.ssh/authorized_keys"
+
   - name: Copy local key to kube-master
     shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 

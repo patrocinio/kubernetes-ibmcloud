@@ -2,7 +2,7 @@
 pip install --upgrade pip
 pip install softlayer
 
-KUBE_MASTER=kube-master
+KUBE_MASTER_PREFIX=kube-master-
 KUBE_NODE_PREFIX=kube-node-
 TIMEOUT=600
 
@@ -11,7 +11,7 @@ TIMEOUT=600
 # Args: $1: name
 function create_server {
 # Creates the machine
-echo "Creating $1 with $CPU cpus and $MEMORY MB of RAM"
+echo "Creating $1 with $CPU cpu(s) and $MEMORY MB of RAM"
 TEMP_FILE=/tmp/create-vs.out
 yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu $CPU --memory $MEMORY --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST > $TEMP_FILE
 }
@@ -64,44 +64,52 @@ slcli vs detail $VS_ID --passwords > $TEMP_FILE
 IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
 }
 
+# From the standpoint of ansible, kube-master-2 is a 'node'
 function update_hosts_file {
 # Update ansible hosts file
 echo Updating ansible hosts files
 HOSTS=/tmp/ansible-hosts
 echo > $HOSTS
 echo "[kube-master]" >> $HOSTS
-obtain_ip $KUBE_MASTER
-MASTER_IP=$IP_ADDRESS
-echo "kube-master ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-echo "[kube-node]" >> $HOSTS
+obtain_ip ${KUBE_MASTER_PREFIX}1
+MASTER1_IP=$IP_ADDRESS
+echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 
-# Get node IP address
+echo "[kube-node]" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}1"
 NODE1_IP=$IP_ADDRESS
 echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}2"
 NODE2_IP=$IP_ADDRESS
 echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#obtain_ip ${KUBE_MASTER_PREFIX}2
+#MASTER2_IP=$IP_ADDRESS
+#echo "kube-master-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+
+#echo "[secondary-master]" >> $HOSTS
+#echo "kube-master-2 ansible_host=$MASTER2_IP ansible_user=root" >> $HOSTS
+
 
 }
 
 function configure_master {
 # Get kube master password
-obtain_root_pwd $KUBE_MASTER
+obtain_root_pwd ${KUBE_MASTER_PREFIX}1
 
 # Log in to the machine
-sshpass -p $PASSWORD ssh-copy-id root@$MASTER_IP
-
+sshpass -p $PASSWORD ssh-copy-id root@$MASTER1_IP
 
 
 # Create inventory file
 INVENTORY=/tmp/inventory
 echo > $INVENTORY
 echo "[masters]" >> $INVENTORY
-echo "kube-master" >> $INVENTORY
+echo "kube-master-1" >> $INVENTORY
+#echo "kube-master-2" >> $INVENTORY
 echo >> $INVENTORY
 echo "[etcd]" >> $INVENTORY
-echo "kube-master" >> $INVENTORY
+echo "kube-master-1" >> $INVENTORY
+#echo "kube-master-2" >> $INVENTORY
 echo >> $INVENTORY
 echo "[nodes]" >> $INVENTORY
 echo "kube-node-1" >> $INVENTORY
@@ -138,6 +146,7 @@ function configure_nodes {
 echo Configuring nodes
 configure_node "${KUBE_NODE_PREFIX}1"
 configure_node "${KUBE_NODE_PREFIX}2"
+#configure_node "${KUBE_MASTER_PREFIX}2"
 
 # Execute kube-master playbook
 ansible-playbook ansible/kube-node.yaml
@@ -146,6 +155,17 @@ ansible-playbook ansible/kube-node.yaml
 function create_nodes {
 create_kube "${KUBE_NODE_PREFIX}1"
 create_kube "${KUBE_NODE_PREFIX}2"
+}
+
+function create_masters {
+create_kube "${KUBE_MASTER_PREFIX}1"
+#create_kube "${KUBE_MASTER_PREFIX}2"
+
+}
+
+function configure_secondary_master {
+# Execute kube-secondary-master playbook
+ansible-playbook ansible/kube-secondary-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master1=$MASTER1_IP"
 }
 
 
@@ -159,7 +179,7 @@ echo "timeout = 0" >> ~/.softlayer
 echo Using the following SoftLayer configuration
 slcli config show
 
-create_kube $KUBE_MASTER
+create_masters
 create_nodes
 
 # Generate SSH key
@@ -167,9 +187,10 @@ create_nodes
 
 update_hosts_file
 configure_nodes
+#configure_secondary_master
 configure_master
 
-echo "Congratulations! You can log on to the kube master by issuing ssh root@$MASTER_IP"
+echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
 
 
 
