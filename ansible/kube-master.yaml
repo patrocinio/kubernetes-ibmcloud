@@ -56,3 +56,5 @@
   - name: Set up kubernetes - This may take a while...
     shell: chdir=/root/kubernetes/ansible /root/kubernetes/ansible/setup.sh
 
+- include: regression.yaml
+

@@ -1,0 +1,29 @@
+---
+- hosts: kube-master
+  remote_user: root
+  tasks:
+
+  - name: Clone repository
+    git: repo=https://github.com/kubernetes/kubernetes.git dest=/root/regression force=yes
+
+  - name: Tear down existing POD rc
+    command: kubectl delete rc -l "app in (redis, guestbook)"
+
+  - name: Tear down existing POD rc
+    command: kubectl delete service -l "app in (redis, guestbook)"
+
+  - name: Deploy POD
+    command: kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml chdir=/root/regression
+
+  - name: Check POD
+    shell: kubectl get svc | grep frontend
+    register: result
+    failed_when: ( result.rc != 0 )
+
+  - name: Tear down existing POD rc
+    command: kubectl delete rc -l "app in (redis, guestbook)"
+
+  - name: Tear down existing POD rc
+    command: kubectl delete service -l "app in (redis, guestbook)"
+
+
