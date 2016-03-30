@@ -4,9 +4,24 @@ pip install softlayer
 
 KUBE_MASTER_PREFIX=kube-master-
 KUBE_NODE_PREFIX=kube-node-
+
+# This var is not used anymore
 TIMEOUT=600
+PORT_SPEED=10
+
 
 . ./kubernetes.cfg
+
+# Set the server type
+if [ $SERVER_TYPE  == "bare" ]; then
+  SERVER_MESSAGE="bare metal server"
+  CLI_TYPE=server
+  SPEC="--size $SIZE --port-speed $PORT_SPEED --os CENTOS_7_64"
+else
+  SERVER_MESSAGE="virtual server"
+  CLI_TYPE=vs
+  SPEC="--cpu $CPU --memory $MEMORY --os CENTOS_LATEST"
+fi
 
 # Args: $1: VLAN number
 function get_vlan_id {
@@ -32,21 +47,25 @@ build_vlan_arg "--vlan-private" $PRIVATE_VLAN
 PRIVATE_ARG=$VLAN_ARG
 build_vlan_arg "--vlan-public" $PUBLIC_VLAN
 PUBLIC_ARG=$VLAN_ARG
-yes | slcli vs create --hostname $1 --domain $DOMAIN --cpu $CPU --memory $MEMORY --datacenter $DATACENTER --billing hourly --os CENTOS_LATEST $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
+
+echo "Deploying $SERVER_MESSAGE $1"
+yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing hourly  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
 }
 
 # Args: $1: name
 function get_server_id {
 # Extract virtual server ID
-slcli vs list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
-VS_ID=`cat $TEMP_FILE | awk '{print $1}'`
+slcli $CLI_TYPE list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
+
+# Consider only the first returned result
+VS_ID=`head -1 $TEMP_FILE | awk '{print $1}'`
 }
 
 # Args: $1: name
 function create_kube {
 # Check whether kube master exists
 TEMP_FILE=/tmp/deploy-kubernetes.out
-slcli vs list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
+slcli $CLI_TYPE list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
 COUNT=`wc $TEMP_FILE | awk '{print $1}'`
 
 # Determine whether to create the kube-master
@@ -58,9 +77,17 @@ fi
 
 get_server_id $1
 
+# We might have to change to state = 'Running' for virtual servers
 # Wait kube master to be ready
-echo "Waiting for virtual server $1 to be ready"
-slcli vs ready $VS_ID --wait=$TIMEOUT
+while true; do
+  echo "Waiting for $SERVER_MESSAGE $1 to be ready"
+  STATUS=`slcli $CLI_TYPE detail $VS_ID | grep status | awk '{ print $2}'`
+  if [ $STATUS == 'ACTIVE' ]; then
+    break
+  else
+    sleep 5
+  fi
+done
 }
 
 # Arg $1: hostname
@@ -68,8 +95,10 @@ function obtain_root_pwd {
 get_server_id $1
 
 # Obtain the root password
-slcli vs detail $VS_ID --passwords > $TEMP_FILE
-PASSWORD=`grep root $TEMP_FILE | awk '{print $3}'`
+slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+
+# Remove "remote users"
+PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
 echo PASSWORD $PASSWORD
 
 }
@@ -79,7 +108,8 @@ function obtain_ip {
 echo Obtaining IP address for $1
 get_server_id $1
 # Obtain the IP address
-slcli vs detail $VS_ID --passwords > $TEMP_FILE
+slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+
 IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
 }
 
@@ -158,6 +188,7 @@ NODE_IP=$IP_ADDRESS
 echo IP Address: $NODE_IP
 
 # Log in to the machine
+set -x
 sshpass -p $PASSWORD ssh-copy-id root@$NODE_IP
 }
 
