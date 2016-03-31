@@ -77,12 +77,11 @@ fi
 
 get_server_id $1
 
-# We might have to change to state = 'Running' for virtual servers
 # Wait kube master to be ready
 while true; do
   echo "Waiting for $SERVER_MESSAGE $1 to be ready"
-  STATUS=`slcli $CLI_TYPE detail $VS_ID | grep status | awk '{ print $2}'`
-  if [ $STATUS == 'ACTIVE' ]; then
+  STATE=`slcli $CLI_TYPE detail $VS_ID | grep state | awk '{ print $2}'`
+  if [ $STATE == 'RUNNING' ]; then
     break
   else
     sleep 5
@@ -124,6 +123,12 @@ obtain_ip ${KUBE_MASTER_PREFIX}1
 MASTER1_IP=$IP_ADDRESS
 echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 
+obtain_ip ${KUBE_MASTER_PREFIX}2
+MASTER2_IP=$IP_ADDRESS
+# Multiple masters work
+# echo "kube-master-2 ansible_host=$MASTER2_IP ansible_user=root" >> $HOSTS
+
+
 echo "[kube-node]" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}1"
 NODE1_IP=$IP_ADDRESS
@@ -131,22 +136,15 @@ echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}2"
 NODE2_IP=$IP_ADDRESS
 echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-#obtain_ip ${KUBE_MASTER_PREFIX}2
-#MASTER2_IP=$IP_ADDRESS
-#echo "kube-master-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-
-#echo "[secondary-master]" >> $HOSTS
-#echo "kube-master-2 ansible_host=$MASTER2_IP ansible_user=root" >> $HOSTS
-
-
 }
 
+#Args: $1: master hostname $2: master IP
 function configure_master {
 # Get kube master password
-obtain_root_pwd ${KUBE_MASTER_PREFIX}1
+obtain_root_pwd $1
 
 # Log in to the machine
-sshpass -p $PASSWORD ssh-copy-id root@$MASTER1_IP
+sshpass -p $PASSWORD ssh-copy-id root@$2
 
 
 # Create inventory file
@@ -170,9 +168,14 @@ echo > $ANSIBLE_CFG
 echo "[defaults]" >> $ANSIBLE_CFG
 echo "host_key_checking = False" >> $ANSIBLE_CFG
 
-# Execute kube-master playbook
-ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP"
+}
 
+function configure_masters {
+  configure_master ${KUBE_MASTER_PREFIX}1 $MASTER1_IP
+  configure_master ${KUBE_MASTER_PREFIX}2 $MASTER2_IP
+
+  # Execute kube-master playbook
+  ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master2=$MASTER2_IP"
 }
 
 # Args $1 Node name
@@ -185,10 +188,9 @@ obtain_root_pwd $1
 # Get master IP address
 obtain_ip $1
 NODE_IP=$IP_ADDRESS
-echo IP Address: $NODE_IP
+echo IP Address: $NODE_IPvi
 
 # Log in to the machine
-set -x
 sshpass -p $PASSWORD ssh-copy-id root@$NODE_IP
 }
 
@@ -196,7 +198,6 @@ function configure_nodes {
 echo Configuring nodes
 configure_node "${KUBE_NODE_PREFIX}1"
 configure_node "${KUBE_NODE_PREFIX}2"
-#configure_node "${KUBE_MASTER_PREFIX}2"
 
 # Execute kube-master playbook
 ansible-playbook ansible/kube-node.yaml
@@ -209,15 +210,14 @@ create_kube "${KUBE_NODE_PREFIX}2"
 
 function create_masters {
 create_kube "${KUBE_MASTER_PREFIX}1"
-#create_kube "${KUBE_MASTER_PREFIX}2"
+create_kube "${KUBE_MASTER_PREFIX}2"
 
 }
 
-function configure_secondary_master {
+#function configure_secondary_master {
 # Execute kube-secondary-master playbook
-ansible-playbook ansible/kube-secondary-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master1=$MASTER1_IP"
-}
-
+#ansible-playbook ansible/kube-secondary-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master1=$MASTER1_IP"
+#}
 
 # Authenticates to SL
 echo "[softlayer]" > ~/.softlayer
@@ -236,9 +236,10 @@ create_nodes
 #yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
 
 update_hosts_file
+
 configure_nodes
 #configure_secondary_master
-configure_master
+configure_masters
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
 
