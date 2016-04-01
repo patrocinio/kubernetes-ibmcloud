@@ -109,7 +109,11 @@ get_server_id $1
 # Obtain the IP address
 slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
 
-IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
+if [ $CONNECTION  == "VPN" ]; then
+  IP_ADDRESS=`grep private_ip $TEMP_FILE | awk '{print $2}'`
+else
+  IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
+fi
 }
 
 # From the standpoint of ansible, kube-master-2 is a 'node'
@@ -188,7 +192,7 @@ obtain_root_pwd $1
 # Get master IP address
 obtain_ip $1
 NODE_IP=$IP_ADDRESS
-echo IP Address: $NODE_IPvi
+echo IP Address: $NODE_IP
 
 # Log in to the machine
 sshpass -p $PASSWORD ssh-copy-id root@$NODE_IP
