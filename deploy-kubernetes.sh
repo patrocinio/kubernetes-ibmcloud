@@ -4,6 +4,7 @@ pip install softlayer
 
 KUBE_MASTER_PREFIX=kube-master-
 KUBE_NODE_PREFIX=kube-node-
+HOSTS=/tmp/ansible-hosts
 
 # This var is not used anymore
 TIMEOUT=600
@@ -120,7 +121,6 @@ fi
 function update_hosts_file {
 # Update ansible hosts file
 echo Updating ansible hosts files
-HOSTS=/tmp/ansible-hosts
 echo > $HOSTS
 echo "[kube-master]" >> $HOSTS
 obtain_ip ${KUBE_MASTER_PREFIX}1
@@ -148,6 +148,7 @@ function configure_master {
 obtain_root_pwd $1
 
 # Log in to the machine
+set -x
 sshpass -p $PASSWORD ssh-copy-id root@$2
 
 
@@ -179,7 +180,7 @@ function configure_masters {
   configure_master ${KUBE_MASTER_PREFIX}2 $MASTER2_IP
 
   # Execute kube-master playbook
-  ansible-playbook ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master2=$MASTER2_IP"
+  ansible-playbook -i $HOSTS ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master2=$MASTER2_IP"
 }
 
 # Args $1 Node name
@@ -204,7 +205,7 @@ configure_node "${KUBE_NODE_PREFIX}1"
 configure_node "${KUBE_NODE_PREFIX}2"
 
 # Execute kube-master playbook
-ansible-playbook ansible/kube-node.yaml
+ansible-playbook -i $HOSTS ansible/kube-node.yaml
 }
 
 function create_nodes {
@@ -227,7 +228,7 @@ create_kube "${KUBE_MASTER_PREFIX}2"
 echo "[softlayer]" > ~/.softlayer
 echo "username = $USER" >> ~/.softlayer
 echo "api_key = $API_KEY" >> ~/.softlayer
-echo "endpoint_url = https://api.softlayer.com/xmlrpc/v3.1/" >> ~/.softlayer
+echo "endpoint_url = $ENDPOINT" >> ~/.softlayer
 echo "timeout = 0" >> ~/.softlayer
 
 echo Using the following SoftLayer configuration
