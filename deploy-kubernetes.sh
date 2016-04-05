@@ -125,7 +125,8 @@ echo > $HOSTS
 echo "[kube-master]" >> $HOSTS
 obtain_ip ${KUBE_MASTER_PREFIX}1
 MASTER1_IP=$IP_ADDRESS
-echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 
 obtain_ip ${KUBE_MASTER_PREFIX}2
 MASTER2_IP=$IP_ADDRESS
@@ -136,10 +137,12 @@ MASTER2_IP=$IP_ADDRESS
 echo "[kube-node]" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}1"
 NODE1_IP=$IP_ADDRESS
-echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}2"
 NODE2_IP=$IP_ADDRESS
-echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 }
 
 #Args: $1: master hostname $2: master IP
@@ -150,7 +153,7 @@ obtain_root_pwd $1
 # Log in to the machine
 set -x
 sshpass -p $PASSWORD ssh-copy-id root@$2
-
+set +x
 
 # Create inventory file
 INVENTORY=/tmp/inventory
