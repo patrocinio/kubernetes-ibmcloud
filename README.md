@@ -2,7 +2,7 @@
 
 Follow this procedure:
 
-1. First clone this project
+1. First clone this project: `git clone https://github.com/patrocinio/kubernetes-softlayer.git`
 2. Edit the kubernetes.cfg file to enter the following SoftLayer configuration
 3. Mandatory fields:
    * USER
