@@ -28,7 +28,7 @@ slcli $CLI_TYPE list --domain $DOMAIN > $TEMP_FILE
 for id in `cat $TEMP_FILE | awk '{print $1}'`
 do
    echo Deleting server $id
-   echo $id | slcli vs cancel $id
+   echo $id | slcli $CLI_TYPE cancel $id
 done
 
 

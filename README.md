@@ -2,15 +2,22 @@
 
 Follow this procedure:
 
-1. First clone this project
+1. First clone this project: `git clone https://github.com/patrocinio/kubernetes-softlayer.git`
 2. Edit the kubernetes.cfg file to enter the following SoftLayer configuration
+3. Mandatory fields:
    * USER
-   * API_KEY
-   * (Optional) DATACENTER: Check http://www.softlayer.com/data-centers and look at the Ping/Trace Route column for the code. For example, the code for speedtest.wdc01.softlayer.com is wdc01
-   * (Optional) CPU: Define the number of CPIUs you want in each server
-   * (Optional) MEMORY: Define the amount of RAM (in MB) in each server
-   * (Optional) PUBLIC_VLAN: Define the public VLAN number
-   * (Optional) PRIVATE_VLAN: Define the private VLAN number
+   * API_KEY: Check https://knowledgelayer.softlayer.com/procedure/generate-api-key to see how you can generate an API key
+* Optional ones:
+   * DATACENTER: Run the following command to obtain the data center code: `slcli vs create-options | grep datacenter`
+   * DOMAIN: hostname domain
+   * SERVER_TYPE: bare for bare metal; anything else for virtual servers
+   * For virtual servers:
+	   * CPU: Define the number of CPIUs you want in each server
+   		* MEMORY: Define the amount of RAM (in MB) in each server
+   * For bare metal:
+   		* SIZE: Run `slcli server create-options` for values
+   * PUBLIC_VLAN: Define the public VLAN number
+   * PRIVATE_VLAN: Define the private VLAN number
 
 3. Run the following command:
 `deploy-kubernetes.sh`
