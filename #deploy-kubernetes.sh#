@@ -1,4 +1,4 @@
-# Installs the SoftLayer CLI
+b# Installs the SoftLayer CLI
 pip install --upgrade pip
 pip install softlayer
 
@@ -151,7 +151,9 @@ function configure_master {
 obtain_root_pwd $1
 
 # Log in to the machine
+set -x
 sshpass -p $PASSWORD ssh-copy-id root@$2
+set +x
 
 # Create inventory file
 INVENTORY=/tmp/inventory
