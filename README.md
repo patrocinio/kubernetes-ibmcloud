@@ -32,8 +32,9 @@ Log on to the kube master and follow these steps:
     mkdir guestbook
     cd guestbook
     git clone https://github.com/kubernetes/kubernetes.git
+    cd kubernetes
     git reset --hard 6a657e0bc25eafd44fa042b079c36f8f0413d420
-    kubectl create -f kubernetes/examples/guestbook/all-in-one/guestbook-all-in-one.yaml
+    kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml
 
 You can monitor the progress of the deployment by typing the following command:
 
