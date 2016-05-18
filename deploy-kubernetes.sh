@@ -80,8 +80,8 @@ get_server_id $1
 
 # Wait kube master to be ready
 while true; do
-  echo "Waiting for $SERVER_MESSAGE $1 to be ready"
   STATE=`slcli $CLI_TYPE detail $VS_ID | grep state | awk '{ print $2}'`
+echo "Waiting for $SERVER_MESSAGE $1 to be ready... State: $STATE"
   if [ $STATE == 'RUNNING' ]; then
     break
   else
@@ -235,8 +235,8 @@ echo "timeout = 0" >> ~/.softlayer
 echo Using the following SoftLayer configuration
 slcli config show
 
-create_masters
 create_nodes
+create_masters
 
 # Generate SSH key
 #yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
