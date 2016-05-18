@@ -125,8 +125,8 @@ echo > $HOSTS
 echo "[kube-master]" >> $HOSTS
 obtain_ip ${KUBE_MASTER_PREFIX}1
 MASTER1_IP=$IP_ADDRESS
-#echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 
 obtain_ip ${KUBE_MASTER_PREFIX}2
 MASTER2_IP=$IP_ADDRESS
@@ -137,12 +137,12 @@ MASTER2_IP=$IP_ADDRESS
 echo "[kube-node]" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}1"
 NODE1_IP=$IP_ADDRESS
-#echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}2"
 NODE2_IP=$IP_ADDRESS
-#echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
+#echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 }
 
 #Args: $1: master hostname $2: master IP
@@ -167,8 +167,8 @@ echo "kube-master-1" >> $INVENTORY
 #echo "kube-master-2" >> $INVENTORY
 echo >> $INVENTORY
 echo "[nodes]" >> $INVENTORY
-echo "kube-node-1" >> $INVENTORY
-echo "kube-node-2" >> $INVENTORY
+echo "$NODE1_IP" >> $INVENTORY
+echo "$NODE2_IP" >> $INVENTORY
 
 # Create ansible.cfg
 ANSIBLE_CFG=/tmp/ansible.cfg

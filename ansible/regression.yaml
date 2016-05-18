@@ -6,6 +6,9 @@
   - name: Clone repository
     git: repo=https://github.com/kubernetes/kubernetes.git dest=/root/regression force=yes
 
+  - name: Revert to specific commit release (before the use of Deployment)
+    command: git reset --hard 6a657e0bc25eafd44fa042b079c36f8f0413d420 chdir=/root/regression
+
   - name: Tear down existing POD rc
     command: kubectl delete rc -l "app in (redis, guestbook)"
 
