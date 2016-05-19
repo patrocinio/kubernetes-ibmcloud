@@ -80,8 +80,8 @@ get_server_id $1
 
 # Wait kube master to be ready
 while true; do
+  echo "Waiting for $SERVER_MESSAGE $1 to be ready..."
   STATE=`slcli $CLI_TYPE detail $VS_ID | grep state | awk '{ print $2}'`
-echo "Waiting for $SERVER_MESSAGE $1 to be ready... State: $STATE"
   if [ $STATE == 'RUNNING' ]; then
     break
   else
@@ -145,13 +145,24 @@ echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 #echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 }
 
+#Args: $1: PASSWORD, $2: IP Address
+function set_ssh_key {
+#Remove entry from known_hosts
+ssh-keygen -R $2
+
+set -x
+# Log in to the machine
+sshpass -p $1 ssh-copy-id root@$2
+set +x
+}
+
 #Args: $1: master hostname $2: master IP
 function configure_master {
 # Get kube master password
 obtain_root_pwd $1
 
-# Log in to the machine
-sshpass -p $PASSWORD ssh-copy-id root@$2
+# Set the SSH key
+set_ssh_key $PASSWORD $2
 
 # Create inventory file
 INVENTORY=/tmp/inventory
@@ -196,8 +207,8 @@ obtain_ip $1
 NODE_IP=$IP_ADDRESS
 echo IP Address: $NODE_IP
 
-# Log in to the machine
-sshpass -p $PASSWORD ssh-copy-id root@$NODE_IP
+# Set the SSH key
+set_ssh_key $PASSWORD $NODE_IP
 }
 
 function configure_nodes {
@@ -244,7 +255,7 @@ create_masters
 update_hosts_file
 
 configure_nodes
-#configure_secondary_master
+##configure_secondary_master
 configure_masters
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
