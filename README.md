@@ -1,9 +1,13 @@
 ## Deploy a Kubernetes environment in SoftLayer with a single command! It's that simple.
 
 ### Prerequisites:
-1. SoftLayer CLI - `sudo pip install --upgrade pip softlayer`
-2. Ansible - `sudo apt-get install ansible`
-3. sshpass - `sudo apt-get install sshpass`
+1. PIP - `sudo apt-get install python-pip python-dev build-essential`
+2. SoftLayer CLI - `sudo pip install --upgrade pip softlayer`
+3. Ansible v2.0 or newer- `sudo apt-get install ansible`
+4. sshpass - `sudo apt-get install sshpass`
+5. A default SSH key must exist on your local platform.  If one does not exist, this can be created via the command `ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa`.
+
+NOTE:  If you encounter SSH issues running from Ubuntu, you may be hitting an issue with GNOME Keyring.  See [this article](https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/) for a fix.
 
 ### Deployment:
 Follow this procedure:
