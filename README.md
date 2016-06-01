@@ -1,5 +1,11 @@
 ## Deploy a Kubernetes environment in SoftLayer with a single command! It's that simple.
 
+### Prerequisites:
+1. SoftLayer CLI - `sudo pip install --upgrade pip softlayer`
+2. Ansible - `sudo apt-get install ansible`
+3. sshpass - `sudo apt-get install sshpass`
+
+### Deployment:
 Follow this procedure:
 
 1. First clone this project: `git clone https://github.com/patrocinio/kubernetes-softlayer.git`
@@ -24,7 +30,7 @@ Follow this procedure:
 
 Simple, no?
 
-## Testing the environment 
+## Testing the environment
 
 We recommend running the Guestbook application to test your environment.
 Log on to the kube master and follow these steps:
