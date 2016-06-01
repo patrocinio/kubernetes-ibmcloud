@@ -68,3 +68,8 @@ Take a look at the following scripts too:
 * `display-kubernetes.sh`
 * `destroy-kubernetes.sh`
 * `remove_api_key.sh`
+
+### Reference links
+* [Disabling GNOME Keyring](https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/) - Causes interference with some SSH-based actions
+* [sshpass man page](http://manpages.ubuntu.com/manpages/trusty/man1/sshpass.1.html)
+* [sshpass return code 6](http://stackoverflow.com/questions/33961214/docker-run-fails-with-returned-a-non-zero-code-6) - When host key checking causes errors in SSH scripting
