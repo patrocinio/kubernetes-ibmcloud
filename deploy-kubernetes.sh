@@ -97,9 +97,9 @@ get_server_id $1
 slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
 
 # Remove "remote users"
-PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
+# it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
+PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
 echo PASSWORD $PASSWORD
-
 }
 
 # Args $1: hostname
@@ -143,10 +143,8 @@ function set_ssh_key {
 #Remove entry from known_hosts
 ssh-keygen -R $2
 
-set -x
 # Log in to the machine
 sshpass -p $1 ssh-copy-id -o 'StrictHostKeyChecking=no' root@$2
-set +x
 }
 
 #Args: $1: master hostname $2: master IP
