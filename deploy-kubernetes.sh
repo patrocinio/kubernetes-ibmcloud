@@ -1,6 +1,6 @@
 # Installs the SoftLayer CLI
-pip install --upgrade pip
-pip install softlayer
+# pip install --upgrade pip
+# pip install softlayer
 
 KUBE_MASTER_PREFIX=kube-master-
 KUBE_NODE_PREFIX=kube-node-
@@ -9,7 +9,6 @@ HOSTS=/tmp/ansible-hosts
 # This var is not used anymore
 TIMEOUT=600
 PORT_SPEED=10
-
 
 . ./kubernetes.cfg
 
@@ -42,7 +41,7 @@ if [ -z $2 ]; then
 # Args: $1: name
 function create_server {
 # Creates the machine
-echo "Creating $1 with $CPU cpu(s) and $MEMORY MB of RAM"
+echo "Creating $1 with $CPU cpu(s) and $MEMORY GB of RAM"
 TEMP_FILE=/tmp/create-vs.out
 build_vlan_arg "--vlan-private" $PRIVATE_VLAN
 PRIVATE_ARG=$VLAN_ARG
@@ -98,7 +97,7 @@ get_server_id $1
 slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
 
 # Remove "remote users"
-PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
 echo PASSWORD $PASSWORD
 
 }
@@ -128,12 +127,6 @@ MASTER1_IP=$IP_ADDRESS
 echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 #echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 
-obtain_ip ${KUBE_MASTER_PREFIX}2
-MASTER2_IP=$IP_ADDRESS
-# Multiple masters work
-# echo "kube-master-2 ansible_host=$MASTER2_IP ansible_user=root" >> $HOSTS
-
-
 echo "[kube-node]" >> $HOSTS
 obtain_ip "${KUBE_NODE_PREFIX}1"
 NODE1_IP=$IP_ADDRESS
@@ -152,7 +145,7 @@ ssh-keygen -R $2
 
 set -x
 # Log in to the machine
-sshpass -p $1 ssh-copy-id root@$2
+sshpass -p $1 ssh-copy-id -o 'StrictHostKeyChecking=no' root@$2
 set +x
 }
 
@@ -169,11 +162,9 @@ INVENTORY=/tmp/inventory
 echo > $INVENTORY
 echo "[masters]" >> $INVENTORY
 echo "kube-master-1" >> $INVENTORY
-#echo "kube-master-2" >> $INVENTORY
 echo >> $INVENTORY
 echo "[etcd]" >> $INVENTORY
 echo "kube-master-1" >> $INVENTORY
-#echo "kube-master-2" >> $INVENTORY
 echo >> $INVENTORY
 echo "[nodes]" >> $INVENTORY
 echo "$NODE1_IP" >> $INVENTORY
@@ -189,10 +180,9 @@ echo "host_key_checking = False" >> $ANSIBLE_CFG
 
 function configure_masters {
   configure_master ${KUBE_MASTER_PREFIX}1 $MASTER1_IP
-  configure_master ${KUBE_MASTER_PREFIX}2 $MASTER2_IP
 
   # Execute kube-master playbook
-  ansible-playbook -i $HOSTS ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master2=$MASTER2_IP"
+  ansible-playbook -i $HOSTS ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP"
 }
 
 # Args $1 Node name
@@ -227,14 +217,7 @@ create_kube "${KUBE_NODE_PREFIX}2"
 
 function create_masters {
 create_kube "${KUBE_MASTER_PREFIX}1"
-create_kube "${KUBE_MASTER_PREFIX}2"
-
 }
-
-#function configure_secondary_master {
-# Execute kube-secondary-master playbook
-#ansible-playbook ansible/kube-secondary-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP kube_master1=$MASTER1_IP"
-#}
 
 # Authenticates to SL
 echo "[softlayer]" > ~/.softlayer
@@ -255,14 +238,6 @@ create_masters
 update_hosts_file
 
 configure_nodes
-##configure_secondary_master
 configure_masters
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
-
-
-
-
-
-
-

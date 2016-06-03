@@ -1,5 +1,15 @@
 ## Deploy a Kubernetes environment in SoftLayer with a single command! It's that simple.
 
+### Prerequisites:
+1. PIP - `sudo apt-get install python-pip python-dev build-essential`
+2. SoftLayer CLI - `sudo pip install --upgrade pip softlayer`
+3. Ansible v2.0 or newer- `sudo apt-get install ansible`
+4. sshpass - `sudo apt-get install sshpass`
+5. A default SSH key must exist on your local platform.  If one does not exist, this can be created via the command `ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa`.
+
+NOTE:  If you encounter SSH issues running from Ubuntu, you may be hitting an issue with GNOME Keyring.  See [this article](https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/) for a fix.
+
+### Deployment:
 Follow this procedure:
 
 1. First clone this project: `git clone https://github.com/patrocinio/kubernetes-softlayer.git`
@@ -24,7 +34,7 @@ Follow this procedure:
 
 Simple, no?
 
-## Testing the environment 
+## Testing the environment
 
 We recommend running the Guestbook application to test your environment.
 Log on to the kube master and follow these steps:
@@ -58,3 +68,8 @@ Take a look at the following scripts too:
 * `display-kubernetes.sh`
 * `destroy-kubernetes.sh`
 * `remove_api_key.sh`
+
+### Reference links
+* [Disabling GNOME Keyring](https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/) - Causes interference with some SSH-based actions
+* [sshpass man page](http://manpages.ubuntu.com/manpages/trusty/man1/sshpass.1.html)
+* [sshpass return code 6](http://stackoverflow.com/questions/33961214/docker-run-fails-with-returned-a-non-zero-code-6) - When host key checking causes errors in SSH scripting
