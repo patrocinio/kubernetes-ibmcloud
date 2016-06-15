@@ -179,7 +179,7 @@ function configure_master { ##TODO##
   for(( x=1; x <= ${NUM_NODES}; x++))
   do
     TMP1=$(echo \${NODE${x}_IP})
-    LOCAL_IP=$(eval ${TMP1})
+    LOCAL_IP=$(eval echo ${TMP1})
     echo "${LOCAL_IP}" >> ${INVENTORY}
   done
 
@@ -198,8 +198,8 @@ function configure_masters { ##TODO##
   for(( x=1; x <= ${NUM_NODES}; x++))
   do
     TMP1=$(echo \${NODE${x}_IP})
-    LOCAL_IP=$(eval ${TMP1})
-    EXTRA_VARS += "kube_node${x}=${LOCAL_IP} "
+    LOCAL_IP=$(eval echo ${TMP1})
+    EXTRA_VARS="${EXTRA_VARS} kube_node${x}=${LOCAL_IP}"
   done
 
   # Execute kube-master playbook
