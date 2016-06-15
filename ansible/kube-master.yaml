@@ -7,13 +7,17 @@
   - name: Build hosts file
     lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_host }} {{item}}" state=present
     when: hostvars[item].ansible_host is defined
-    with_items: groups['all']
+    with_items: "{{ groups['all'] }}"
+
   - name: Configure EPEL release
     yum: name=epel-release state=latest
+
   - name: Install ansible
     yum: name=ansible state=latest
+
   - name: Install git
     yum: name=git state=latest
+
   - name: Install netaddr
     yum: name=python-netaddr state=latest
 
@@ -26,14 +30,9 @@
   - name: Download pub key
     fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/id_rsa.tmp flat=yes
 
-  - name: Copy local key to kube-node1
-    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node1 }} "cat >> /root/.ssh/authorized_keys"
-
-  - name: Copy local key to kube-node2
-    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_node2 }} "cat >> /root/.ssh/authorized_keys"
-
-#  - name: Copy local key to kube-master-2
-#    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ kube_master2 }} "cat >> /root/.ssh/authorized_keys"
+  - name: Copy local key to kube-nodes
+    local_action: shell cat /tmp/id_rsa.tmp | ssh root@{{ hostvars[item].ansible_host }} "cat >> /root/.ssh/authorized_keys"
+    with_items: "{{ groups['kube-node'] }}"
 
   - name: Copy local key to kube-master
     shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
@@ -57,4 +56,3 @@
     shell: chdir=/root/kubernetes/ansible /root/kubernetes/ansible/setup.sh
 
 - include: regression.yaml
-

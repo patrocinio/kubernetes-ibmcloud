@@ -117,7 +117,7 @@ function obtain_ip {
 }
 
 # From the standpoint of ansible, kube-master-2 is a 'node'
-function update_hosts_file { ##TODO##
+function update_hosts_file {
   # Update ansible hosts file
   echo Updating ansible hosts files
   echo > $HOSTS
@@ -125,25 +125,15 @@ function update_hosts_file { ##TODO##
   obtain_ip ${KUBE_MASTER_PREFIX}1
   MASTER1_IP=$IP_ADDRESS
   echo "kube-master-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-  #echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 
   echo "[kube-node]" >> $HOSTS
-
+  ## Echoes in the format of "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
   for(( x=1; x <= ${NUM_NODES}; x++))
   do
     obtain_ip "${KUBE_NODE_PREFIX}${x}"
     export NODE${x}_IP=$IP_ADDRESS
     echo "${KUBE_NODE_PREFIX}${x} ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
   done
-
-  #obtain_ip "${KUBE_NODE_PREFIX}1"
-  #NODE1_IP=$IP_ADDRESS
-  #echo "kube-node-1 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-  ##echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-  #obtain_ip "${KUBE_NODE_PREFIX}2"
-  #NODE2_IP=$IP_ADDRESS
-  #echo "kube-node-2 ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
-  ##echo "$IP_ADDRESS ansible_host=$IP_ADDRESS ansible_user=root" >> $HOSTS
 }
 
 #Args: $1: PASSWORD, $2: IP Address
@@ -156,7 +146,7 @@ function set_ssh_key {
 }
 
 #Args: $1: master hostname $2: master IP
-function configure_master { ##TODO##
+function configure_master {
   # Get kube master password
   obtain_root_pwd $1
 
@@ -173,9 +163,7 @@ function configure_master { ##TODO##
   echo "kube-master-1" >> $INVENTORY
   echo >> $INVENTORY
   echo "[nodes]" >> $INVENTORY
-  #echo "$NODE1_IP" >> $INVENTORY
-  #echo "$NODE2_IP" >> $INVENTORY
-
+  ## Echoes in the format of "$NODE1_IP" >> $INVENTORY
   for(( x=1; x <= ${NUM_NODES}; x++))
   do
     TMP1=$(echo \${NODE${x}_IP})
@@ -191,20 +179,11 @@ function configure_master { ##TODO##
 
 }
 
-function configure_masters { ##TODO##
+function configure_masters {
   configure_master ${KUBE_MASTER_PREFIX}1 $MASTER1_IP
 
-  EXTRA_VARS=""
-  for(( x=1; x <= ${NUM_NODES}; x++))
-  do
-    TMP1=$(echo \${NODE${x}_IP})
-    LOCAL_IP=$(eval echo ${TMP1})
-    EXTRA_VARS="${EXTRA_VARS} kube_node${x}=${LOCAL_IP}"
-  done
-
   # Execute kube-master playbook
-  #ansible-playbook -i $HOSTS ansible/kube-master.yaml --extra-vars "kube_node1=$NODE1_IP kube_node2=$NODE2_IP"
-  ansible-playbook -i $HOSTS ansible/kube-master.yaml --extra-vars "${EXTRA_VARS}"
+  ansible-playbook -i $HOSTS ansible/kube-master.yaml
 }
 
 # Args $1 Node name
@@ -223,14 +202,12 @@ function configure_node {
   set_ssh_key $PASSWORD $NODE_IP
 }
 
-function configure_nodes { ##TODO##
+function configure_nodes {
   echo Configuring nodes
   for(( x=1; x <= ${NUM_NODES}; x++))
   do
     configure_node "${KUBE_NODE_PREFIX}${x}"
   done
-  #configure_node "${KUBE_NODE_PREFIX}1"
-  #configure_node "${KUBE_NODE_PREFIX}2"
 
   # Execute kube-master playbook
   ansible-playbook -i $HOSTS ansible/kube-node.yaml
@@ -241,8 +218,6 @@ function create_nodes {
   do
     create_kube "${KUBE_NODE_PREFIX}${x}"
   done
-  #create_kube "${KUBE_NODE_PREFIX}1"
-  #create_kube "${KUBE_NODE_PREFIX}2"
 }
 
 function create_masters {
