@@ -12,6 +12,9 @@ PORT_SPEED=10
 
 . ./kubernetes.cfg
 
+# Need to determine operating system for certain SL CLI commands
+PLATFORM_TYPE=$(uname)
+
 # Set the server type
 if [ $SERVER_TYPE  == "bare" ]; then
   SERVER_MESSAGE="bare metal server"
@@ -98,7 +101,11 @@ function obtain_root_pwd {
 
   # Remove "remote users"
   # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
-  PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
+  if [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
+    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
+  elif [ $PLATFORM_TYPE == "Darwin" ]; then
+    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+  fi
   echo PASSWORD $PASSWORD
 }
 
