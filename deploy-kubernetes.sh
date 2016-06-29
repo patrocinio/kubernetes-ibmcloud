@@ -105,7 +105,9 @@ function obtain_root_pwd {
 
   # Remove "remote users"
   # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
-  if [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
+  if [ $SERVER_TYPE == "bare" ]; then
+    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+  elif [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
     PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
   elif [ $PLATFORM_TYPE == "Darwin" ]; then
     PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
