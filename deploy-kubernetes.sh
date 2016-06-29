@@ -20,10 +20,14 @@ if [ $SERVER_TYPE  == "bare" ]; then
   SERVER_MESSAGE="bare metal server"
   CLI_TYPE=server
   SPEC="--size $SIZE --port-speed $PORT_SPEED --os CENTOS_7_64"
+  STATUS_FIELD="status"
+  STATUS_VALUE="ACTIVE"
 else
   SERVER_MESSAGE="virtual server"
   CLI_TYPE=vs
   SPEC="--cpu $CPU --memory $MEMORY --os CENTOS_LATEST"
+  STATUS_FIELD="state"
+  STATUS_VALUE="RUNNING"
 fi
 
 # Args: $1: VLAN number
@@ -83,8 +87,8 @@ function create_kube {
   # Wait kube master to be ready
   while true; do
     echo "Waiting for $SERVER_MESSAGE $1 to be ready..."
-    STATE=`slcli $CLI_TYPE detail $VS_ID | grep state | awk '{ print $2}'`
-    if [ $STATE == 'RUNNING' ]; then
+    STATE=`slcli $CLI_TYPE detail $VS_ID | grep $STATUS_FIELD | awk '{print $2}'`
+    if [ "$STATE" == "$STATUS_VALUE" ]; then
       break
     else
       sleep 5
@@ -101,7 +105,9 @@ function obtain_root_pwd {
 
   # Remove "remote users"
   # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
-  if [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
+  if [ $SERVER_TYPE == "bare" ]; then
+    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+  elif [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
     PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
   elif [ $PLATFORM_TYPE == "Darwin" ]; then
     PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
