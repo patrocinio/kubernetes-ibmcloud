@@ -11,6 +11,12 @@
 
   - name: Configure EPEL release
     yum: name=epel-release state=latest
+    register: result
+    ignore_errors: yes
+
+  - name: Configure EPEL release (long way)
+    yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
+    when: result|failed
 
   - name: Install ansible
     yum: name=ansible state=latest
