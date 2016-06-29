@@ -7,7 +7,7 @@
 4. sshpass - `sudo apt-get install sshpass`
 5. A default SSH key must exist on your local platform.  If one does not exist, this can be created via the command `ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa`.
 
-NOTE:  If you encounter SSH issues running from Ubuntu, you may be hitting an issue with GNOME Keyring.  See [this article](https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/) for a fix.
+NOTE:  If you encounter SSH issues running from Ubuntu, install `sudo pip install requests[security]` first.  If that does not eliminate the issue, you may be hitting an issue with GNOME Keyring.  See [this article](https://chrisjean.com/ubuntu-ssh-fix-for-agent-admitted-failure-to-sign-using-the-key/) for a fix.
 
 ### Deployment:
 Follow this procedure:
