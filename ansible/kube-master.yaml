@@ -53,7 +53,7 @@
 #    replace: "dest=/root/kubernetes/ansible/group_vars/all.yml regexp='source_type: (.*)' replace='source_type: packageManager' backup=yes"
 
   - name: Copy inventory file
-    copy: src=/tmp/inventory dest=/root/kubernetes/ansible
+    copy: src=/tmp/inventory dest=/root/kubernetes/ansible/inventory
 
   - name: Copy ansible.cfg
     copy: src=/tmp/ansible.cfg dest=/root/.ansible.cfg
