@@ -59,6 +59,6 @@
     copy: src=/tmp/ansible.cfg dest=/root/.ansible.cfg
 
   - name: Set up kubernetes - This may take a while...
-    shell: chdir=/root/kubernetes/ansible /root/kubernetes/ansible/setup.sh
+    shell: chdir=/root/kubernetes/ansible/scripts /root/kubernetes/ansible/scripts/deploy-master.sh
 
-- include: regression.yaml
+#- include: regression.yaml

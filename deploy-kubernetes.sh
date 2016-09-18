@@ -186,8 +186,7 @@ function configure_master {
 
   # Create ansible.cfg
   ANSIBLE_CFG=/tmp/ansible.cfg
-  echo > $ANSIBLE_CFG
-  echo "[defaults]" >> $ANSIBLE_CFG
+  echo "[defaults]" > $ANSIBLE_CFG
   echo "host_key_checking = False" >> $ANSIBLE_CFG
 
 }
