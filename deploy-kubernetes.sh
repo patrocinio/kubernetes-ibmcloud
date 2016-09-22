@@ -38,7 +38,11 @@ function get_vlan_id {
 # Args: $1: label $2: VLAN number
 function build_vlan_arg {
   if [ -z $2 ]; then
-    VLAN_ARG=""
+    if [ "${1}" == "--vlan-public" ]; then
+      VLAN_ARG="--private"
+    else
+      VLAN_ARG=""
+    fi
   else
      get_vlan_id $2
      VLAN_ARG="$1 $VLAN_ID"
@@ -56,7 +60,7 @@ function create_server {
   PUBLIC_ARG=$VLAN_ARG
 
   echo "Deploying $SERVER_MESSAGE $1"
-  yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing hourly  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
+  yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
 }
 
 # Args: $1: name
@@ -155,7 +159,7 @@ function set_ssh_key {
   ssh-keygen -R $2
 
   # Log in to the machine
-  sshpass -p $1 ssh-copy-id -o 'StrictHostKeyChecking=no' root@$2
+  sshpass -p $1 ssh-copy-id -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null' root@$2
 }
 
 #Args: $1: master hostname $2: master IP
