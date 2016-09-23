@@ -102,20 +102,24 @@ function create_kube {
 
 # Arg $1: hostname
 function obtain_root_pwd {
+  unset PASSWORD
   get_server_id $1
 
-  # Obtain the root password
-  slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+  while [ -z $PASSWORD ]; do
 
-  # Remove "remote users"
-  # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
-  if [ $SERVER_TYPE == "bare" ]; then
-    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
-  elif [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
-    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
-  elif [ $PLATFORM_TYPE == "Darwin" ]; then
-    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
-  fi
+    # Obtain the root password
+    slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+
+    # Remove "remote users"
+    # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
+    if [ $SERVER_TYPE == "bare" ]; then
+      PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+    elif [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
+      PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
+    elif [ $PLATFORM_TYPE == "Darwin" ]; then
+      PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+    fi
+  done
   echo PASSWORD $PASSWORD
 }
 
