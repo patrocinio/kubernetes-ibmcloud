@@ -170,10 +170,10 @@ function configure_master {
   INVENTORY=/tmp/inventory
   echo > $INVENTORY
   echo "[masters]" >> $INVENTORY
-  echo "kube-master-1" >> $INVENTORY
+  echo "kube-master-1".$DOMAIN >> $INVENTORY
   echo >> $INVENTORY
   echo "[etcd]" >> $INVENTORY
-  echo "kube-master-1" >> $INVENTORY
+  echo "kube-master-1".$DOMAIN >> $INVENTORY
   echo >> $INVENTORY
   echo "[nodes]" >> $INVENTORY
   ## Echoes in the format of "$NODE1_IP" >> $INVENTORY
@@ -195,7 +195,7 @@ function configure_masters {
   configure_master ${KUBE_MASTER_PREFIX}1 $MASTER1_IP
 
   # Execute kube-master playbook
-  ansible-playbook -i $HOSTS ansible/kube-master.yaml
+  ansible-playbook -v -i $HOSTS ansible/kube-master.yaml
 }
 
 # Args $1 Node name
@@ -222,7 +222,7 @@ function configure_nodes {
   done
 
   # Execute kube-master playbook
-  ansible-playbook -i $HOSTS ansible/kube-node.yaml
+  ansible-playbook -v -i $HOSTS ansible/kube-node.yaml
 }
 
 function create_nodes {
