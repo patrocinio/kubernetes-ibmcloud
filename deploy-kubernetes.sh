@@ -170,10 +170,10 @@ function configure_master {
   INVENTORY=/tmp/inventory
   echo > $INVENTORY
   echo "[masters]" >> $INVENTORY
-  echo "kube-master-1".$DOMAIN >> $INVENTORY
+  echo "kube-master-1" >> $INVENTORY
   echo >> $INVENTORY
   echo "[etcd]" >> $INVENTORY
-  echo "kube-master-1".$DOMAIN >> $INVENTORY
+  echo "kube-master-1" >> $INVENTORY
   echo >> $INVENTORY
   echo "[nodes]" >> $INVENTORY
   ## Echoes in the format of "$NODE1_IP" >> $INVENTORY

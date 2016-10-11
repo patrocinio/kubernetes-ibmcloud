@@ -58,6 +58,9 @@
   - name: Append ansible.cfg
     lineinfile: dest=/root/kubernetes/ansible/scripts/ansible.cfg regexp=^host_key_checking line="host_key_checking=False"
 
+  - name: Set up etcd
+    shell: chdir=/root/kubernetes/ansible/scripts /root/kubernetes/ansible/scripts/deploy-etcd.sh
+
   - name: Set up kubernetes - This may take a while...
     shell: chdir=/root/kubernetes/ansible/scripts /root/kubernetes/ansible/scripts/deploy-master.sh
 
