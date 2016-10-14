@@ -38,7 +38,11 @@ function get_vlan_id {
 # Args: $1: label $2: VLAN number
 function build_vlan_arg {
   if [ -z $2 ]; then
-    VLAN_ARG=""
+    if [ "${1}" == "--vlan-public" ]; then
+      VLAN_ARG="--private"
+    else
+      VLAN_ARG=""
+    fi
   else
      get_vlan_id $2
      VLAN_ARG="$1 $VLAN_ID"
@@ -56,7 +60,7 @@ function create_server {
   PUBLIC_ARG=$VLAN_ARG
 
   echo "Deploying $SERVER_MESSAGE $1"
-  yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing hourly  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
+  yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
 }
 
 # Args: $1: name
@@ -98,20 +102,24 @@ function create_kube {
 
 # Arg $1: hostname
 function obtain_root_pwd {
+  unset PASSWORD
   get_server_id $1
 
-  # Obtain the root password
-  slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+  while [ -z $PASSWORD ]; do
 
-  # Remove "remote users"
-  # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
-  if [ $SERVER_TYPE == "bare" ]; then
-    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
-  elif [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
-    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
-  elif [ $PLATFORM_TYPE == "Darwin" ]; then
-    PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
-  fi
+    # Obtain the root password
+    slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+
+    # Remove "remote users"
+    # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
+    if [ $SERVER_TYPE == "bare" ]; then
+      PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+    elif [ $PLATFORM_TYPE == "Linux" ] || [ $FORCE_LINUX == "true" ]; then
+      PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $4}'`
+    elif [ $PLATFORM_TYPE == "Darwin" ]; then
+      PASSWORD=`grep root $TEMP_FILE | grep -v "remote users" | awk '{print $3}'`
+    fi
+  done
   echo PASSWORD $PASSWORD
 }
 
@@ -155,7 +163,7 @@ function set_ssh_key {
   ssh-keygen -R $2
 
   # Log in to the machine
-  sshpass -p $1 ssh-copy-id -o 'StrictHostKeyChecking=no' root@$2
+  sshpass -p $1 ssh-copy-id -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null' root@$2
 }
 
 #Args: $1: master hostname $2: master IP
