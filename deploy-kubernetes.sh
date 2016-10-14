@@ -246,15 +246,12 @@ echo "timeout = 0" >> ~/.softlayer
 echo Using the following SoftLayer configuration
 slcli config show
 
-create_nodes
 create_masters
-
-# Generate SSH key
-#yes | ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+#create_nodes
 
 update_hosts_file
 
-configure_nodes
 configure_masters
+#configure_nodes
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
