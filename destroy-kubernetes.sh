@@ -30,8 +30,3 @@ do
    echo Deleting server $id
    echo $id | slcli $CLI_TYPE cancel $id
 done
-
-
-
-
-
