@@ -1,0 +1,24 @@
+  - name: Create Kubernetes repository
+    copy: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo
+
+  - name: Install docker
+    yum: name=docker update_cache=yes state=present
+
+  - name: Install kubelet
+    yum: name=kubelet state=present
+
+  - name: Install kubeadm
+    yum: name=kubeadm state=present
+
+  - name: Install kubectl
+    yum: name=kubectl state=present
+
+  - name: Install kubenetes-cni
+    yum: name=kubernetes-cni state=present
+
+  - name: Enable docker
+    shell: systemctl enable docker && systemctl start docker
+
+  - name: Enable kubelet
+    shell: systemctl enable kubelet && systemctl start kubelet
+

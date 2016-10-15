@@ -2,5 +2,5 @@
 - hosts: kube-master
   remote_user: root
   tasks:
-  - name: Create Kubernetes repository
-    copy: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo
+  - include: kubelet.yaml
+

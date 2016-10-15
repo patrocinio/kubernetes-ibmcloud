@@ -2,7 +2,4 @@
 - hosts: kube-node
   remote_user: root
   tasks:
-  - name: Build hosts file
-    lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_host }} {{item}}" state=present
-    when: hostvars[item].ansible_host is defined
-    with_items: "{{ groups['all'] }}"
+  - include: kubelet.yaml
