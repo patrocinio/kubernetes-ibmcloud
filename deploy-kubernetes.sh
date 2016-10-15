@@ -38,7 +38,7 @@ function get_vlan_id {
 # Args: $1: label $2: VLAN number
 function build_vlan_arg {
   if [ -z $2 ]; then
-    if [ "${1}" == "--vlan-public" ]; then
+    if [ "${1}" == "--vlan-private" ]; then
       VLAN_ARG="--private"
     else
       VLAN_ARG=""
@@ -54,8 +54,8 @@ function create_server {
   # Creates the machine
   echo "Creating $1 with $CPU cpu(s) and $MEMORY GB of RAM"
   TEMP_FILE=/tmp/create-vs.out
-  build_vlan_arg "--vlan-private" $PRIVATE_VLAN
-  PRIVATE_ARG=$VLAN_ARG
+#  build_vlan_arg "--vlan-private" $PRIVATE_VLAN
+#  PRIVATE_ARG=$VLAN_ARG
   build_vlan_arg "--vlan-public" $PUBLIC_VLAN
   PUBLIC_ARG=$VLAN_ARG
 
@@ -127,6 +127,8 @@ function obtain_root_pwd {
 function obtain_ip {
   echo Obtaining IP address for $1
   get_server_id $1
+
+  echo Server: $VS_ID
   # Obtain the IP address
   slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
 
@@ -255,11 +257,11 @@ echo Using the following SoftLayer configuration
 slcli config show
 
 create_masters
-#create_nodes
+create_nodes
 
 update_hosts_file
 
 configure_masters
-#configure_nodes
+configure_nodes
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
