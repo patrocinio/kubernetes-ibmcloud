@@ -4,3 +4,9 @@
   tasks:
   - include: kubelet.yaml
 
+  - name: Initialize the master
+    shell: kubeadm init --token mymymy.kubernetes
+    ignore_errors: yes
+
+  - name: Install WaveNet network
+    shell: kubectl apply -f https://git.io/weave-kube

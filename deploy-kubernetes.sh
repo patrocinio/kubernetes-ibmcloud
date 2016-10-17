@@ -232,7 +232,7 @@ function configure_nodes {
   done
 
   # Execute kube-master playbook
-  ansible-playbook -v -i $HOSTS ansible/kube-node.yaml
+  ansible-playbook -v -i $HOSTS ansible/kube-node.yaml --extra-vars "master_ip=$MASTER1_IP"
 }
 
 function create_nodes {

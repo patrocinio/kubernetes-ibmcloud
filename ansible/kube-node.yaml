@@ -3,3 +3,10 @@
   remote_user: root
   tasks:
   - include: kubelet.yaml
+
+  - debug: msg="Master IP is {{ master_ip }}"
+
+  - name: Initialize the node
+    shell: kubeadm join --token mymymy.kubernetes {{ master_ip }}
+    ignore_errors: yes
+
