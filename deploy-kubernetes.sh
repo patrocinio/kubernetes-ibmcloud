@@ -54,8 +54,8 @@ function create_server {
   # Creates the machine
   echo "Creating $1 with $CPU cpu(s) and $MEMORY GB of RAM"
   TEMP_FILE=/tmp/create-vs.out
-#  build_vlan_arg "--vlan-private" $PRIVATE_VLAN
-#  PRIVATE_ARG=$VLAN_ARG
+  build_vlan_arg "--vlan-private" $PRIVATE_VLAN
+  PRIVATE_ARG=$VLAN_ARG
   build_vlan_arg "--vlan-public" $PUBLIC_VLAN
   PUBLIC_ARG=$VLAN_ARG
 
