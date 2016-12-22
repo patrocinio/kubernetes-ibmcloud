@@ -38,11 +38,11 @@ function get_vlan_id {
 # Args: $1: label $2: VLAN number
 function build_vlan_arg {
   if [ -z $2 ]; then
-    if [ "${1}" == "--vlan-private" ]; then
-      VLAN_ARG="--private"
-    else
+#    if [ "${1}" == "--vlan-private" ]; then
+#      VLAN_ARG="--private"
+#    else
       VLAN_ARG=""
-    fi
+#    fi
   else
      get_vlan_id $2
      VLAN_ARG="$1 $VLAN_ID"
@@ -60,6 +60,7 @@ function create_server {
   PUBLIC_ARG=$VLAN_ARG
 
   echo "Deploying $SERVER_MESSAGE $1"
+  echo "Command: slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG"
   yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
 }
 
@@ -247,11 +248,11 @@ function create_masters {
 }
 
 # Authenticates to SL
-echo "[softlayer]" > ~/.softlayer
-echo "username = $USER" >> ~/.softlayer
-echo "api_key = $API_KEY" >> ~/.softlayer
-echo "endpoint_url = $ENDPOINT" >> ~/.softlayer
-echo "timeout = 0" >> ~/.softlayer
+#echo "[softlayer]" > ~/.softlayer
+#echo "username = $USER" >> ~/.softlayer
+#echo "api_key = $API_KEY" >> ~/.softlayer
+#echo "endpoint_url = $ENDPOINT" >> ~/.softlayer
+#echo "timeout = 0" >> ~/.softlayer
 
 echo Using the following SoftLayer configuration
 slcli config show
