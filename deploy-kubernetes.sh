@@ -15,17 +15,23 @@ PORT_SPEED=10
 # Need to determine operating system for certain SL CLI commands
 PLATFORM_TYPE=$(uname)
 
+# Set the default OS if OS is not configured
+if [ -z ${OS+x} ]; then
+   OS=CENTOS_LATEST_64
+fi
+
+
 # Set the server type
 if [ $SERVER_TYPE  == "bare" ]; then
   SERVER_MESSAGE="bare metal server"
   CLI_TYPE=server
-  SPEC="--size $SIZE --port-speed $PORT_SPEED --os CENTOS_7_64"
+  SPEC="--size $SIZE --port-speed $PORT_SPEED --os $OS"
   STATUS_FIELD="status"
   STATUS_VALUE="ACTIVE"
 else
   SERVER_MESSAGE="virtual server"
   CLI_TYPE=vs
-  SPEC="--cpu $CPU --memory $MEMORY --os CENTOS_LATEST"
+  SPEC="--cpu $CPU --memory $MEMORY --os $OS"
   STATUS_FIELD="state"
   STATUS_VALUE="RUNNING"
 fi
