@@ -79,6 +79,7 @@ function get_server_id {
   VS_ID=`head -1 $TEMP_FILE | awk '{print $1}'`
 }
 
+
 # Args: $1: name
 function create_kube {
   # Check whether kube master exists
@@ -208,8 +209,20 @@ function configure_master {
 
 }
 
+#Args: $1: IP address
+function install_python {
+  echo Installing python
+
+  # SSH to host
+  ssh -o StrictHostKeyChecking=no root@$1 "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt-get install -y python3.5 && ln -s /usr/bin/python3.5 /usr/bin/python"
+
+}
+
+
 function configure_masters {
   configure_master ${KUBE_MASTER_PREFIX}1 $MASTER1_IP
+
+  install_python $MASTER1_IP
 
   # Execute kube-master playbook
   ansible-playbook -v -i $HOSTS ansible/kube-master.yaml
@@ -229,6 +242,9 @@ function configure_node {
 
   # Set the SSH key
   set_ssh_key $PASSWORD $NODE_IP
+
+  install_python $NODE_IP
+
 }
 
 function configure_nodes {
@@ -264,11 +280,11 @@ echo Using the following SoftLayer configuration
 slcli config show
 
 create_masters
-create_nodes
+#create_nodes
 
 update_hosts_file
 
 configure_masters
-configure_nodes
+#configure_nodes
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"

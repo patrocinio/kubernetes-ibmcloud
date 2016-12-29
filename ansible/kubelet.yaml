@@ -1,23 +1,39 @@
-  - name: Create Kubernetes repository
+  - name: Create Kubernetes repository (Fedora)
     copy: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo
+    ignore_errors: yes
 
-  - name: Install docker
-    yum: name=docker update_cache=yes state=present
+  - name: Add Kubernetes repo key
+    apt_key:
+      url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+      state: present
+
+
+  - name: Create Kubernetes repository (Debian)
+    apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      validate_certs: no 
+
+  - name: Install docker (Fedora)
+    package: name=docker update_cache=yes state=present
+
+  - name: Install docker (Ubuntu)
+    package: name=docker.io update_cache=yes state=present
 
   - name: Install kubelet
-    yum: name=kubelet state=present
+    package: name=kubelet state=present
 
   - name: Install kubeadm
-    yum: name=kubeadm state=present
+    package: name=kubeadm state=present
 
   - name: Install kubectl
-    yum: name=kubectl state=present
+    package: name=kubectl state=present
 
   - name: Install kubenetes-cni
-    yum: name=kubernetes-cni state=present
+    package: name=kubernetes-cni state=present
 
   - name: Enable docker
-    shell: systemctl enable docker && systemctl start docker
+    shell: systemctl enable docker && systemctl start docker 
 
   - name: Enable kubelet
     shell: systemctl enable kubelet && systemctl start kubelet
