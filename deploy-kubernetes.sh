@@ -216,9 +216,10 @@ function install_python {
   # SSH to host
   ssh -o StrictHostKeyChecking=no root@$1 \
   "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
-  " ln -fs /usr/bin/python2.7 /usr/bin/python && wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && "\
-  " apt install -y python2.7-dev && pip install requests[security] && apt install -y python-setuptools python-distutils-extra && "\
-  " pip install python-apt"
+  " ln -fs /usr/bin/python2.7 /usr/bin/python" 
+#  " && wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && "\
+#  " apt install -y python2.7-dev && pip install requests[security] && apt install -y python-setuptools python-distutils-extra && "\
+#  " pip install python-apt"
 
 }
 

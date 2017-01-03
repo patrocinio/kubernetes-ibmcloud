@@ -7,6 +7,6 @@
   - debug: msg="Master IP is {{ master_ip }}"
 
   - name: Initialize the node
-    shell: kubeadm join --token mymymy.kubernetes {{ master_ip }}
+    shell: kubeadm join --token mymymy.kubernetes {{ master_ip }}  --skip-preflight-checks
     ignore_errors: yes
 

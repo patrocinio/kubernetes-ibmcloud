@@ -5,7 +5,7 @@
   - include: kubelet.yaml
 
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetes
+    shell: kubeadm init --token mymymy.kubernetes --skip-preflight-checks 
     ignore_errors: yes
 
   - name: Install WaveNet network
