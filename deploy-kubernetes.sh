@@ -290,6 +290,6 @@ create_nodes
 update_hosts_file
 
 configure_masters
-configure_nodes
+#configure_nodes
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
