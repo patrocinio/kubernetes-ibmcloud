@@ -274,22 +274,21 @@ function create_masters {
   create_kube "${KUBE_MASTER_PREFIX}1"
 }
 
-# Authenticates to SL
-#echo "[softlayer]" > ~/.softlayer
-#echo "username = $USER" >> ~/.softlayer
-#echo "api_key = $API_KEY" >> ~/.softlayer
-#echo "endpoint_url = $ENDPOINT" >> ~/.softlayer
-#echo "timeout = 0" >> ~/.softlayer
+function configure_kubectl {
+   kubectl cluster-info
+}
 
 echo Using the following SoftLayer configuration
 slcli config show
 
 create_masters
-create_nodes
+#create_nodes
 
 update_hosts_file
 
 configure_masters
 #configure_nodes
+
+configure_kubectl
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
