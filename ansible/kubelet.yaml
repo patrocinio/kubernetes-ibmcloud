@@ -6,22 +6,38 @@
     apt_key:
       url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
       state: present
+    ignore_errors: yes
 
 #  - name: Install python apt
 #    pip: 
 #      name: apt
 
-  - name: Create Kubernetes repository (Debian)
+  - name: Add Kubernetes repository (Debian)
     apt_repository:
       repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
       state: present
       validate_certs: no 
+    ignore_errors: yes
+
+  - name: Add Kubernetes repository (Fedora)
+    blockinfile:
+      dest: /etc/yum.repos.d/docker.repo
+      create: yes
+      block: |
+        [dockerrepo]
+        name=Docker Repository
+        baseurl=https://yum.dockerproject.org/repo/main/centos/7/
+        enabled=1
+        gpgcheck=1
+        gpgkey=https://yum.dockerproject.org/gpg
+    ignore_errors: yes
 
   - name: Install docker (Fedora)
-    package: name=docker update_cache=yes state=present
+    package: name=docker-engine update_cache=yes state=present
 
   - name: Install docker (Ubuntu)
     package: name=docker.io update_cache=yes state=present
+    ignore_errors: yes
 
   - name: Install kubelet
     package: name=kubelet state=present

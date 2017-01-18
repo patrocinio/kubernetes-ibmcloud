@@ -94,11 +94,10 @@ function create_kube {
   echo "$1 already created"
   fi
 
-  get_server_id $1
-
   # Wait kube master to be ready
   while true; do
     echo "Waiting for $SERVER_MESSAGE $1 to be ready..."
+    get_server_id $1
     STATE=`slcli $CLI_TYPE detail $VS_ID | grep $STATUS_FIELD | awk '{print $2}'`
     if [ "$STATE" == "$STATUS_VALUE" ]; then
       break
@@ -217,9 +216,6 @@ function install_python {
   ssh -o StrictHostKeyChecking=no root@$1 \
   "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
   " ln -fs /usr/bin/python2.7 /usr/bin/python" 
-#  " && wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && "\
-#  " apt install -y python2.7-dev && pip install requests[security] && apt install -y python-setuptools python-distutils-extra && "\
-#  " pip install python-apt"
 
 }
 
@@ -278,17 +274,28 @@ function configure_kubectl {
    kubectl cluster-info
 }
 
+function deploy_testapp {
+  mkdir /tmp/guestbook
+  cd /tmp/guestbook
+  git clone https://github.com/kubernetes/kubernetes.git
+  cd kubernetes
+  git reset --hard 6a657e0bc25eafd44fa042b079c36f8f0413d420
+  kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml
+}
+
 echo Using the following SoftLayer configuration
 slcli config show
 
 create_masters
-#create_nodes
+create_nodes
 
 update_hosts_file
 
 configure_masters
-#configure_nodes
+configure_nodes
 
 configure_kubectl
+
+deploy_testapp
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"
