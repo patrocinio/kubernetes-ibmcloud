@@ -1,6 +1,3 @@
-# Installs the SoftLayer CLI
-# pip install --upgrade pip
-# pip install softlayer
 
 KUBE_MASTER_PREFIX=kube-master-
 KUBE_NODE_PREFIX=kube-node-
@@ -38,7 +35,7 @@ fi
 
 # Args: $1: VLAN number
 function get_vlan_id {
-   VLAN_ID=`slcli vlan list | grep $1 | awk '{print $1}'`
+   VLAN_ID=`slcli vlan list | grep "$1" | awk '{print $1}'`
 }
 
 # Args: $1: label $2: VLAN number
@@ -226,7 +223,7 @@ function configure_masters {
   install_python $MASTER1_IP
 
   # Execute kube-master playbook
-  ansible-playbook -v -i $HOSTS ansible/kube-master.yaml
+  ansible-playbook -v -i $HOSTS ansible/kube-master.yaml -e "master_ip=$MASTER1_IP"
 }
 
 # Args $1 Node name
@@ -275,6 +272,7 @@ function configure_kubectl {
 }
 
 function deploy_testapp {
+  rm -rf /tmp/guestbook
   mkdir /tmp/guestbook
   cd /tmp/guestbook
   git clone https://github.com/kubernetes/kubernetes.git

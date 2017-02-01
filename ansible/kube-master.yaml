@@ -4,8 +4,10 @@
   tasks:
   - include: kubelet.yaml
 
+  - debug: msg="Master IP is {{ master_ip }}"
+
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetes --skip-preflight-checks 
+    shell: kubeadm init --token mymymy.kubernetes --skip-preflight-checks --api-advertise-addresses={{ master_ip }}
     ignore_errors: yes
 
   - name: Install WaveNet network
