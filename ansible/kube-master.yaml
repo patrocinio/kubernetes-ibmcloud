@@ -10,12 +10,12 @@
     shell: kubeadm init --token mymymy.kubernetes --skip-preflight-checks --api-advertise-addresses={{ master_ip }}
     ignore_errors: yes
 
-  - name: Install WaveNet network
+  - name: Install WeaveNet network
     shell: kubectl apply -f https://git.io/weave-kube
 
-  - name: Deploy Kube UI
-    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
-    ignore_errors: yes
+#  - name: Deploy Kube UI
+#    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+#    ignore_errors: yes
 
   - name: Fetching admin file
     fetch:
