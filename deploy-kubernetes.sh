@@ -278,7 +278,7 @@ function deploy_testapp {
   git clone https://github.com/kubernetes/kubernetes.git
   cd kubernetes
   git reset --hard 6a657e0bc25eafd44fa042b079c36f8f0413d420
-  kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml
+  kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml --validate=false
 }
 
 echo Using the following SoftLayer configuration
