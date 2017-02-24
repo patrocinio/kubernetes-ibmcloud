@@ -13,9 +13,9 @@
   - name: Install Calico network
     shell: kubectl apply -f http://docs.projectcalico.org/master/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
 
-#  - name: Deploy Kube UI
-#    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
-#    ignore_errors: yes
+  - name: Deploy Kube UI
+    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+    ignore_errors: yes
 
   - name: Fetching admin file
     fetch:
