@@ -294,6 +294,6 @@ configure_nodes
 
 configure_kubectl
 
-deploy_testapp
+# deploy_testapp
 
 echo "Congratulations! You can log on to the kube masters by issuing ssh root@$MASTER1_IP"

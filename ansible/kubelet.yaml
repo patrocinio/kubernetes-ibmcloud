@@ -45,6 +45,13 @@
   - name: Install kubeadm
     package: name=kubeadm state=present
 
+  - name: Remove network arguments
+    replace: 
+      dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      regexp: '^(ExecStart.*)\$KUBELET_NETWORK_ARGS(.*)$'
+      replace: \1\2
+      backup: yes
+
   - name: Install kubectl
     package: name=kubectl state=present
 
