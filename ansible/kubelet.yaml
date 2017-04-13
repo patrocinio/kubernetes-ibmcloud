@@ -53,6 +53,9 @@
 
   - name: Enable docker
     shell: systemctl enable docker && systemctl start docker 
+    
+  - name: Hack service file
+    shell: cd /etc/systemd/system/kubelet.service.d;sed -i.bak 's/$KUBELET_NETWORK_ARGS/ /g' 10-kubeadm.conf
 
   - name: Enable kubelet
     shell: systemctl enable kubelet && systemctl start kubelet
