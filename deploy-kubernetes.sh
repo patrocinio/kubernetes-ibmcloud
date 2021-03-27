@@ -2,6 +2,7 @@
 KUBE_MASTER_PREFIX=kube-master-
 KUBE_NODE_PREFIX=kube-node-
 HOSTS=/tmp/ansible-hosts
+CLI="ibmcloud sl"
 
 # This var is not used anymore
 TIMEOUT=600
@@ -30,12 +31,12 @@ else
   CLI_TYPE=vs
   SPEC="--cpu $CPU --memory $MEMORY --os $OS"
   STATUS_FIELD="state"
-  STATUS_VALUE="RUNNING"
+  STATUS_VALUE="Running"
 fi
 
 # Args: $1: VLAN number
 function get_vlan_id {
-   VLAN_ID=`slcli vlan list | grep "$1" | awk '{print $1}'`
+   VLAN_ID=`$CLI vlan list | grep "$1" | awk '{print $1}'`
 }
 
 # Args: $1: label $2: VLAN number
@@ -63,14 +64,14 @@ function create_server {
   PUBLIC_ARG=$VLAN_ARG
 
   echo "Deploying $SERVER_MESSAGE $1"
-  echo "Command: slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG"
-  yes | slcli $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
+  echo "Command: $CLI $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG"
+  yes | $CLI $CLI_TYPE create --hostname $1 --domain $DOMAIN $SPEC --datacenter $DATACENTER --billing $BILLING_METHOD  $PRIVATE_ARG $PUBLIC_ARG | tee $TEMP_FILE
 }
 
 # Args: $1: name
 function get_server_id {
   # Extract virtual server ID
-  slcli $CLI_TYPE list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
+  $CLI $CLI_TYPE list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
 
   # Consider only the first returned result
   VS_ID=`head -1 $TEMP_FILE | awk '{print $1}'`
@@ -81,7 +82,7 @@ function get_server_id {
 function create_kube {
   # Check whether kube master exists
   TEMP_FILE=/tmp/deploy-kubernetes.out
-  slcli $CLI_TYPE list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
+  $CLI $CLI_TYPE list --hostname $1 --domain $DOMAIN | grep $1 > $TEMP_FILE
   COUNT=`wc $TEMP_FILE | awk '{print $1}'`
 
   # Determine whether to create the kube-master
@@ -95,7 +96,7 @@ function create_kube {
   while true; do
     echo "Waiting for $SERVER_MESSAGE $1 to be ready..."
     get_server_id $1
-    STATE=`slcli $CLI_TYPE detail $VS_ID | grep $STATUS_FIELD | awk '{print $2}'`
+    STATE=`$CLI $CLI_TYPE detail $VS_ID | grep $STATUS_FIELD | awk '{print $2}'`
     if [ "$STATE" == "$STATUS_VALUE" ]; then
       break
     else
@@ -112,7 +113,7 @@ function obtain_root_pwd {
   while [ -z $PASSWORD ]; do
 
     # Obtain the root password
-    slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+    $CLI $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
 
     # Remove "remote users"
     # it seems that for Ubuntu it's print $4; however, for Mac, it's print $3
@@ -134,12 +135,12 @@ function obtain_ip {
 
   echo Server: $VS_ID
   # Obtain the IP address
-  slcli $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
+  $CLI $CLI_TYPE detail $VS_ID --passwords > $TEMP_FILE
 
   if [ $CONNECTION  == "VPN" ]; then
-    IP_ADDRESS=`grep private_ip $TEMP_FILE | awk '{print $2}'`
+    IP_ADDRESS=`grep private $TEMP_FILE | awk '{print $3}'`
   else
-    IP_ADDRESS=`grep public_ip $TEMP_FILE | awk '{print $2}'`
+    IP_ADDRESS=`grep public $TEMP_FILE | awk '{print $3}'`
   fi
 }
 
@@ -174,6 +175,9 @@ function set_ssh_key {
 
 #Args: $1: master hostname $2: master IP
 function configure_master {
+  echo Hostname: $1
+  echo Master IP: $2
+
   # Get kube master password
   obtain_root_pwd $1
 
@@ -212,7 +216,7 @@ function install_python {
   # SSH to host
   ssh -o StrictHostKeyChecking=no root@$1 \
   "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
-  " ln -fs /usr/bin/python2.7 /usr/bin/python" 
+  " ln -fs /usr/bin/python2.7 /usr/bin/python"
 
 }
 
@@ -281,8 +285,8 @@ function deploy_testapp {
   kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml --validate=false
 }
 
-echo Using the following SoftLayer configuration
-slcli config show
+echo Using the following IBM Cloud configuration
+ibmcloud account show
 
 create_masters
 create_nodes
