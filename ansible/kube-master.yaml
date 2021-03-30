@@ -9,7 +9,7 @@
   - debug: msg="Master IP is {{ master_ip }}"
 
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetesssssss --skip-preflight-checks --apiserver-advertise-address {{ master_ip }}
+    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }}
     ignore_errors: yes
 
   - name: Install Calico network V2

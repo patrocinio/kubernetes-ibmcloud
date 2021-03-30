@@ -8,6 +8,16 @@
       state: present
     ignore_errors: yes
 
+  - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+    shell: |
+      swapoff -a
+
+  - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+    replace:
+      path: /etc/fstab
+      regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+      replace: '# \1'
+
 #  - name: Install python apt
 #    pip: 
 #      name: apt
@@ -32,12 +42,12 @@
         gpgkey=https://yum.dockerproject.org/gpg
     ignore_errors: yes
 
-  - name: Install docker (Fedora)
-    package: name=docker-engine update_cache=yes state=present
+#  - name: Install docker (Fedora)
+#    package: name=docker-engine update_cache=yes state=present
 
-  - name: Install docker (Ubuntu)
-    package: name=docker.io update_cache=yes state=present
-    ignore_errors: yes
+ # - name: Install docker (Ubuntu)
+ #   package: name=docker.io update_cache=yes state=present
+ #   ignore_errors: yes
 
   - name: Install kubelet
     package: name=kubelet state=present
@@ -58,8 +68,8 @@
   - name: Install kubenetes-cni
     package: name=kubernetes-cni state=present
 
-  - name: Enable docker
-    shell: systemctl enable docker && systemctl start docker 
+#  - name: Enable docker
+#    shell: systemctl unmask docker && systemctl enable docker && systemctl start docker 
 
   - name: Enable kubelet
     shell: systemctl enable kubelet && systemctl start kubelet

@@ -215,9 +215,9 @@ function install_python {
 
   # SSH to host
   ssh -o StrictHostKeyChecking=no root@$1 \
-  "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
-  " ln -fs /usr/bin/python2.7 /usr/bin/python"
-
+  "app install -y python"
+#  "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
+#  " ln -fs /usr/bin/python2.7 /usr/bin/python"
 }
 
 
@@ -289,12 +289,12 @@ echo Using the following IBM Cloud configuration
 ibmcloud account show
 
 create_masters
-create_nodes
+#create_nodes
 
 update_hosts_file
 
 configure_masters
-configure_nodes
+#configure_nodes
 
 configure_kubectl
 
