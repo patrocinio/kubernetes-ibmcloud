@@ -8,7 +8,7 @@ CLI="ibmcloud sl"
 TIMEOUT=600
 PORT_SPEED=10
 
-. ./kubernetes.cfg
+. ./.envrc
 
 # Need to determine operating system for certain SL CLI commands
 PLATFORM_TYPE=$(uname)
@@ -284,15 +284,27 @@ function deploy_testapp {
   kubectl create -f examples/guestbook/all-in-one/guestbook-all-in-one.yaml --validate=false
 }
 
-echo Using the following IBM Cloud configuration
-ibmcloud account show
+function create_vpc {
+  cd terraform
+  terraform init
 
-create_masters
+  terraform plan
+}
+
+function show_account {
+  echo Using the following IBM Cloud configuration
+  ibmcloud account show
+}
+
+
+create_vpc
+
+#create_masters
 #create_nodes
 
-update_hosts_file
+#update_hosts_file
 
-configure_masters
+#configure_masters
 #configure_nodes
 
 #configure_kubectl
