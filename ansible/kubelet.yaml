@@ -1,76 +1,84 @@
-  - name: Create Kubernetes repository (Fedora)
-    copy: src=kubernetes.repo dest=/etc/yum.repos.d/kubernetes.repo
-    ignore_errors: yes
+- name: Make the Swap inactive
+  command: swapoff -a
 
-  - name: Add Kubernetes repo key
-    apt_key:
-      url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-      state: present
-    ignore_errors: yes
+- name: Remove Swap entry from /etc/fstab.
+  lineinfile:
+    dest: /etc/fstab
+    regexp: swap
+    state: absent
 
-  - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
-    shell: |
-      swapoff -a
+- name: Installing Prerequisites for Kubernetes
+  apt: 
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - vim
+      - software-properties-common
+    state: present
 
-  - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
-    replace:
-      path: /etc/fstab
-      regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
-      replace: '# \1'
+- name: Add Docker’s official GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
 
-#  - name: Install python apt
-#    pip: 
-#      name: apt
+- name: Create directory /var/lib/apt/lists/ if it does not exist
+  ansible.builtin.file:
+    path: /var/lib/apt/lists/
+    state: directory
+    mode: '0755'
 
-  - name: Add Kubernetes repository (Debian)
-    apt_repository:
-      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+    filename: docker
+    mode: 0600
+    validate_certs: no 
+  ignore_errors: yes
+
+- name: Install Docker Engine.
+  apt: 
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+- name: Add Kubernetes GPG key
+  command: curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+- name: Add Kubernetes repository (Debian)
+  apt_repository:
+      repo: deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] http://apt.kubernetes.io/ kubernetes-xenial main
       state: present
       validate_certs: no 
-    ignore_errors: yes
 
-  - name: Add Kubernetes repository (Fedora)
-    blockinfile:
-      dest: /etc/yum.repos.d/docker.repo
-      create: yes
-      block: |
-        [dockerrepo]
-        name=Docker Repository
-        baseurl=https://yum.dockerproject.org/repo/main/centos/7/
-        enabled=1
-        gpgcheck=1
-        gpgkey=https://yum.dockerproject.org/gpg
-    ignore_errors: yes
+- name: Install kubeadm
+  package: name=kubeadm state=present
 
-#  - name: Install docker (Fedora)
-#    package: name=docker-engine update_cache=yes state=present
+- name: Initialize kubeadm
+  command: kubeadm init
 
- # - name: Install docker (Ubuntu)
- #   package: name=docker.io update_cache=yes state=present
- #   ignore_errors: yes
+- name: Install kubelet
+  package: name=kubelet state=present
 
-  - name: Install kubelet
-    package: name=kubelet state=present
+#- name: Remove network arguments
+#  replace: 
+#    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+#    regexp: '^(ExecStart.*)\$KUBELET_NETWORK_ARGS(.*)$'
+#    replace: \1\2
+#    backup: yes
 
-  - name: Install kubeadm
-    package: name=kubeadm state=present
+- name: Install kubectl
+  package: name=kubectl state=present
 
-  - name: Remove network arguments
-    replace: 
-      dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-      regexp: '^(ExecStart.*)\$KUBELET_NETWORK_ARGS(.*)$'
-      replace: \1\2
-      backup: yes
+- name: Install kubenetes-cni
+  package: name=kubernetes-cni state=present
 
-  - name: Install kubectl
-    package: name=kubectl state=present
+#- name: Enable docker
+#  shell: systemctl enable docker && systemctl start docker 
 
-  - name: Install kubenetes-cni
-    package: name=kubernetes-cni state=present
-
-#  - name: Enable docker
-#    shell: systemctl unmask docker && systemctl enable docker && systemctl start docker 
-
-  - name: Enable kubelet
-    shell: systemctl enable kubelet && systemctl start kubelet
-
+#- name: Enable kubelet
+#  shell: systemctl enable kubelet && systemctl start kubelet

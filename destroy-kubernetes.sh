@@ -4,6 +4,8 @@
 
 . ./kubernetes.cfg
 
+CLI="ibmcloud sl"
+
 # Authenticates to SL
 #echo "[softlayer]" > ~/.softlayer
 #echo "username = $USER" >> ~/.softlayer
@@ -12,7 +14,7 @@
 #echo "timeout = 0" >> ~/.softlayer
 
 echo Using the following SoftLayer configuration
-slcli config show
+ibmcloud account show
 
 # Set the server type
 if [ $SERVER_TYPE  == "bare" ]; then
@@ -24,9 +26,9 @@ fi
 
 # Deletes the kube master
 TEMP_FILE=/tmp/destroy_kubernetes.out
-slcli $CLI_TYPE list --domain $DOMAIN > $TEMP_FILE
+$CLI $CLI_TYPE list --domain $DOMAIN > $TEMP_FILE
 for id in `cat $TEMP_FILE | awk '{print $1}'`
 do
    echo Deleting server $id
-   echo $id | slcli $CLI_TYPE cancel $id
+   yes | $CLI $CLI_TYPE cancel $id
 done

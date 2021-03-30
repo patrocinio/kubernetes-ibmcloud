@@ -215,16 +215,15 @@ function install_python {
 
   # SSH to host
   ssh -o StrictHostKeyChecking=no root@$1 \
-  "app install -y python"
-#  "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
-#  " ln -fs /usr/bin/python2.7 /usr/bin/python"
+  "add-apt-repository ppa:fkrull/deadsnakes && apt-get update && apt install -y python2.7 &&"\
+  " ln -fs /usr/bin/python2.7 /usr/bin/python"
 }
 
 
 function configure_masters {
   configure_master ${KUBE_MASTER_PREFIX}1 $MASTER1_IP
 
-  install_python $MASTER1_IP
+  #install_python $MASTER1_IP
 
   # Execute kube-master playbook
   ansible-playbook -v -i $HOSTS ansible/kube-master.yaml -e "master_ip=$MASTER1_IP"
@@ -245,7 +244,7 @@ function configure_node {
   # Set the SSH key
   set_ssh_key $PASSWORD $NODE_IP
 
-  install_python $NODE_IP
+#  install_python $NODE_IP
 
 }
 
@@ -296,7 +295,7 @@ update_hosts_file
 configure_masters
 #configure_nodes
 
-configure_kubectl
+#configure_kubectl
 
 # deploy_testapp
 

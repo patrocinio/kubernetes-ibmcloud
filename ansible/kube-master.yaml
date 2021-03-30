@@ -8,20 +8,20 @@
 
   - debug: msg="Master IP is {{ master_ip }}"
 
-  - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }}
-    ignore_errors: yes
+#  - name: Initialize the master
+#    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }}
+#    ignore_errors: yes
 
-  - name: Install Calico network V2
-    shell: kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
+#  - name: Install Calico network V2
+#    shell: kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
 
-  - name: Deploy Kube UI
-    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
-    ignore_errors: yes
+#  - name: Deploy Kube UI
+#    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
+#    ignore_errors: yes
 
-  - name: Fetching admin file
-    fetch:
-      src: /etc/kubernetes/admin.conf
-      dest: ~/.kube/config
-      flat: yes
+#  - name: Fetching admin file
+#    fetch:
+#      src: /etc/kubernetes/admin.conf
+#      dest: ~/.kube/config
+#      flat: yes
 
