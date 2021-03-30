@@ -68,6 +68,4 @@ all: login_ibmcloud
 	date
 	make apply_terraform 
 	date
-	make apply_ansible
-	date
 	echo "Done!"
