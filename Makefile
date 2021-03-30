@@ -66,8 +66,6 @@ apply_ansible: prep_ansible_inventory attach_host
 
 all: login_ibmcloud
 	date
-	make ssh-keygen
-	date
 	make apply_terraform 
 	date
 	make apply_ansible
