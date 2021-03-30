@@ -8,20 +8,33 @@
 
   - debug: msg="Master IP is {{ master_ip }}"
 
-#  - name: Initialize the master
-#    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }}
-#    ignore_errors: yes
+  - name: Initialize the master
+    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }} --pod-network-cidr=192.168.0.0/16
+    ignore_errors: yes
 
-#  - name: Install Calico network V2
-#    shell: kubectl apply -f http://docs.projectcalico.org/v2.0/getting-started/kubernetes/installation/hosted/kubeadm/calico.yaml
+  - name: Install Calico operator
+    shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+    ignore_errors: yes
+
+  - name: Install Calico CNI
+    shell: kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+    ignore_errors: yes
+
+  - name: Remove master taint
+    shell: kubectl taint nodes --all node-role.kubernetes.io/master-
+    ignore_errors: yes
+
+  - name: Remove not-ready taint
+    shell: kubectl taint nodes --all node.kubernetes.io/not-ready-
+    ignore_errors: yes
 
 #  - name: Deploy Kube UI
 #    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
 #    ignore_errors: yes
 
-#  - name: Fetching admin file
-#    fetch:
-#      src: /etc/kubernetes/admin.conf
-#      dest: ~/.kube/config
-#      flat: yes
+  - name: Fetching admin file
+    fetch:
+      src: /etc/kubernetes/admin.conf
+      dest: ~/.kube/config
+      flat: yes
 

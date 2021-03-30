@@ -58,9 +58,6 @@
 - name: Install kubeadm
   package: name=kubeadm state=present
 
-- name: Initialize kubeadm
-  command: kubeadm init
-
 - name: Install kubelet
   package: name=kubelet state=present
 
@@ -77,8 +74,9 @@
 - name: Install kubenetes-cni
   package: name=kubernetes-cni state=present
 
-#- name: Enable docker
-#  shell: systemctl enable docker && systemctl start docker 
+- name: Enable docker
+  shell: systemctl enable docker && systemctl start docker 
 
-#- name: Enable kubelet
-#  shell: systemctl enable kubelet && systemctl start kubelet
+- name: Enable kubelet
+  shell: systemctl enable kubelet && systemctl start kubelet
+
