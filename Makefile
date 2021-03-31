@@ -1,5 +1,8 @@
 SHELL := /bin/bash
 
+HOSTS ?= /tmp/ansible-hosts
+TEMP_FILE ?= /tmp/ansible-line
+
 ifndef RESOURCE_PREFIX
 $(error RESOURCE_PREFIX is not set, please read the README and set using .envrc.)
 endif
@@ -41,7 +44,7 @@ clean: check_clean terraform_init
 ssh-keygen:
 	mkdir -p ssh-keys/
 	ssh-keygen -f ssh-keys/ssh-key
-	cat ssh-keys/ssh-key.pub | cut -d' ' -f2 | sed 's/^/export TF_VAR_SSH_PUBLIC_KEY="/' | sed 's/$$/"/' >> ./.envrc 
+	cat ssh-keys/ssh-key.pub | cut -d' ' -f2 | sed 's/^/export TF_VAR_SSH_PUBLIC_KEY="/' | sed 's/$$/"/' >> ./.envrc
 
 login_ibmcloud:
 	# For now, we forcibly select us-east from this list: https://cloud.ibm.com/docs/satellite?topic=satellite-sat-regions.
@@ -57,15 +60,22 @@ get_terraform_show:
 	(cd terraform && terraform show -json > ../terraform_show.json)
 
 prep_ansible_inventory: get_terraform_show
-	cat terraform_show.json | jq --raw-output .values.outputs.ipaddress_controlplane01_floating.value,.values.outputs.ipaddress_controlplane02_floating.value,.values.outputs.ipaddress_controlplane03_floating.value,.values.outputs.ipaddress_workernode01_floating.value,.values.outputs.ipaddress_workernode02_floating.value,.values.outputs.ipaddress_workernode03_floating.value > ansible/.inventory
-	paste -d ' ' ansible/.inventory ansible/inventory_postfix > ansible/inventory
-	rm ansible/.inventory
+	echo > $(HOSTS)
+	echo "[kube-master] " >> $(HOSTS)
+	echo "kube-master-1 " >> $(TEMP_FILE)
+	echo "ansible_host=" >> $(TEMP_FILE)
+	cat terraform_show.json | jq --raw-output .values.outputs.ipaddress_master01_floating.value >> $(TEMP_FILE)
+	echo " ansible_user=root" >> $(TEMP_FILE)
+	paste -s -d '\0' $(TEMP_FILE) >> $(HOSTS)
+	rm $(TEMP_FILE)
 
-apply_ansible: prep_ansible_inventory attach_host
-	(cd ansible && ansible-playbook install-machine.yml -i inventory)
+apply_ansible: prep_ansible_inventory
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_ip=$MASTER1_IP" --key-file "../ssh-keys/ssh-key")
 
 all: login_ibmcloud
 	date
-	make apply_terraform 
+	make apply_terraform
+	date
+	make apply_ansible
 	date
 	echo "Done!"

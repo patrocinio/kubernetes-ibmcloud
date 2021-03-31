@@ -1,0 +1,2 @@
+kube-master-1 ansible_host=P_ADDRESS ansible_user=root
+kube-master-1 ansible_host=P_ADDRESS ansible_user=root

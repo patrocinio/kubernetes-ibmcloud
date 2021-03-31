@@ -129,3 +129,14 @@ resource "ibm_is_public_gateway" "public-gateway" {
   }
 }
 
+module "is_instance_master01" {
+  source = "./modules/is_instance"
+
+  name              = "${var.RESOURCE_PREFIX}-master01"
+  resource_group    = ibm_resource_group.group.id
+  subnet_id         = ibm_is_subnet.subnet.id
+  security_group_id = ibm_is_vpc.vpc.security_group[0].group_id
+  vpc_id            = ibm_is_vpc.vpc.id
+  ssh_key_id        = ibm_is_ssh_key.ssh-key.id
+  zone              = var.zone
+}
