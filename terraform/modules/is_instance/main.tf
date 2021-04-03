@@ -1,11 +1,11 @@
-data "ibm_is_image" "rhel7" {
-  name = "ibm-redhat-7-6-minimal-amd64-1"
+data "ibm_is_image" "ubuntu" {
+  name = "ibm-ubuntu-20-04-minimal-amd64-2"
 }
 
 resource "ibm_is_instance" "is_instance" {
   name    = var.name
-  image   = data.ibm_is_image.rhel7.id
-  profile = "bx2-4x16"
+  image   = data.ibm_is_image.ubuntu.id
+  profile = "cx2-2x4"
 
   resource_group = var.resource_group
 

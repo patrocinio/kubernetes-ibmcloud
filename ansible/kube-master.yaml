@@ -4,9 +4,9 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   tasks:
-  - include: kubelet.yaml
-
   - debug: msg="Master IP is {{ master_ip }}"
+
+  - include: kubelet.yaml
 
   - name: Initialize the master
     shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }} --pod-network-cidr=192.168.0.0/16

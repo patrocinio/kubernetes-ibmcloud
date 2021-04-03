@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
-HOSTS ?= /tmp/ansible-hosts
-TEMP_FILE ?= /tmp/ansible-line
+HOSTS := /tmp/ansible-hosts
+TEMP_FILE := /tmp/ansible-line
 
 ifndef RESOURCE_PREFIX
 $(error RESOURCE_PREFIX is not set, please read the README and set using .envrc.)
@@ -44,6 +44,7 @@ clean: check_clean terraform_init
 ssh-keygen:
 	mkdir -p ssh-keys/
 	ssh-keygen -f ssh-keys/ssh-key
+	chmod 600 ssh
 	cat ssh-keys/ssh-key.pub | cut -d' ' -f2 | sed 's/^/export TF_VAR_SSH_PUBLIC_KEY="/' | sed 's/$$/"/' >> ./.envrc
 
 login_ibmcloud:
@@ -70,10 +71,12 @@ prep_ansible_inventory: get_terraform_show
 	rm $(TEMP_FILE)
 
 apply_ansible: prep_ansible_inventory
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_ip=$MASTER1_IP" --key-file "../ssh-keys/ssh-key")
+	echo Master IP: $(shell cd terraform && terraform output ipaddress_master01_floating | tr -d '"')
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_ip=$(shell cd terraform && terraform output ipaddress_master01_floating | tr -d '"')" --key-file "../ssh-keys/ssh-key")
 
 all: login_ibmcloud
 	date
+	echo RESOURCE_PREFIX: $(RESOURCE_PREFIX)
 	make apply_terraform
 	date
 	make apply_ansible

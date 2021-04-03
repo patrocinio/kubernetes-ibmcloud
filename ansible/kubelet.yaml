@@ -29,22 +29,22 @@
     state: directory
     mode: '0755'
 
-- name: Add Docker Repository
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
-    state: present
-    filename: docker
-    mode: 0600
-    validate_certs: no 
-  ignore_errors: yes
+#- name: Add Docker Repository
+#  apt_repository:
+#    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+#    state: present
+#    filename: docker
+#    mode: 0600
+#    validate_certs: no 
+#  ignore_errors: yes
 
-- name: Install Docker Engine.
-  apt: 
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-    state: present
+#- name: Install Docker Engine.
+#  apt: 
+#    name:
+#      - docker-ce
+#      - docker-ce-cli
+#      - containerd.io
+#    state: present
 
 - name: Add Kubernetes GPG key
   command: curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -74,8 +74,8 @@
 - name: Install kubenetes-cni
   package: name=kubernetes-cni state=present
 
-- name: Enable docker
-  shell: systemctl enable docker && systemctl start docker 
+#- name: Enable docker
+#  shell: systemctl enable docker && systemctl start docker 
 
 - name: Enable kubelet
   shell: systemctl enable kubelet && systemctl start kubelet
