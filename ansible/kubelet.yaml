@@ -29,23 +29,65 @@
     state: directory
     mode: '0755'
 
-#- name: Add Docker Repository
-#  apt_repository:
-#    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
-#    state: present
-#    filename: docker
-#    mode: 0600
-#    validate_certs: no 
-#  ignore_errors: yes
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+    filename: docker
+    mode: 0600
+    validate_certs: no 
+  ignore_errors: yes
 
-#- name: Install Docker Engine.
-#  apt: 
-#    name:
+- name: Create containerd file
+  copy:
+    dest: "/etc/modules-load.d/containerd.conf"
+    content: |
+      overlay
+      br_netfilter
+      
+
+- name: Add some modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+     - overlay
+     - br_netfilter 
+
+- name: Create CRI configuration file
+  copy:
+    dest: "/etc/sysctl.d/99-kubernetes-cri.conf"
+    content: |
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.ipv4.ip_forward                 = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+
+- name: Apply sysctl params
+  command: sysctl --system
+
+- name: Create directory /etc/containerd if it does not exist
+  ansible.builtin.file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: Install Containerd
+  apt: 
+    name:
 #      - docker-ce
 #      - docker-ce-cli
-#      - containerd.io
-#    state: present
+      - containerd.io
+    state: present
 
+- name: Configure containerd
+  command: containerd config default | sudo tee /etc/containerd/config.toml
+
+- name: Restart containerd
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: containerd
+      
 - name: Add Kubernetes GPG key
   command: curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 

@@ -1,0 +1,10 @@
+---
+- hosts: kube-master
+  remote_user: root
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  tasks:
+  - debug: msg="Master IP is {{ master_ip }}"
+
+  - name: Reset the maaster
+    shell: kubeadm reset -f
