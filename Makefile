@@ -71,12 +71,11 @@ prep_ansible_inventory: get_terraform_show
 	rm $(TEMP_FILE)
 
 apply_ansible: prep_ansible_inventory
-	echo Master IP: $(shell cd terraform && terraform output ipaddress_master01_floating | tr -d '"')
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_ip=$(shell cd terraform && terraform output ipaddress_master01_floating | tr -d '"')" --key-file "../ssh-keys/ssh-key")
+	echo Master IP: $(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_ip=$(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')" --key-file "../ssh-keys/ssh-key")
 
 kube_reset:
-	echo Master IP: $(shell cd terraform && terraform output ipaddress_master01_floating | tr -d '"')
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml -e "master_ip=$(shell cd terraform && terraform output ipaddress_master01_floating | tr -d '"')" --key-file "../ssh-keys/ssh-key")
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
 
 
 all: login_ibmcloud

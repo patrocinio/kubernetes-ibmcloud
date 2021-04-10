@@ -117,18 +117,20 @@
       [Service]                                                 
       Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
 
-- name: Let iptables see bridged traffic
+- name: Let iptables see bridged traffic - part 1
   copy:
     dest: "/etc/modules-load.d/k8s.conf"
     content: | 
-      net.bridge.bridge-nf-call-ip6tables = 1
-      net.bridge.bridge-nf-call-iptables = 1
-   
+      br_netfilter
+
 - name: Let iptables see bridged traffic - part 2
   copy:
     dest: "/etc/sysctl.d/k8s.conf"
     content: | 
-      br_netfilter
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.bridge.bridge-nf-call-iptables = 1
+   
+# - meta: end_play
    
 - name: Restart kubelet
   ansible.builtin.systemd:
