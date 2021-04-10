@@ -9,7 +9,7 @@
   - include: kubelet.yaml
 
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }} --pod-network-cidr=192.168.0.0/16
+    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }} --pod-network-cidr=192.168.0.0/16 --cri-socket /run/containerd/containerd.sock
 
   - name: Install Calico operator
     shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
