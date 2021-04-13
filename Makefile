@@ -55,6 +55,8 @@ target_resource_group:
 	ibmcloud target -g $(RESOURCE_PREFIX)-group
 
 apply_terraform: terraform_init
+	echo RESOURCE_PREFIX: $(RESOURCE_PREFIX)
+	echo NUM_MASTERS: $(NUM_MASTERS)
 	(cd terraform && terraform apply -auto-approve)
 
 get_terraform_show:
@@ -80,7 +82,6 @@ kube_reset:
 
 all: login_ibmcloud
 	date
-	echo RESOURCE_PREFIX: $(RESOURCE_PREFIX)
 	make apply_terraform
 	date
 	make apply_ansible

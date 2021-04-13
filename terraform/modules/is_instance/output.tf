@@ -3,5 +3,5 @@ output "floating_ip" {
 }
 
 output "private_ip" {
-  value = ibm_is_instance.is_instance.primary_network_interface.0.primary_ipv4_address
+  value = ibm_is_instance.is_instance[0].primary_network_interface.0.primary_ipv4_address
 }

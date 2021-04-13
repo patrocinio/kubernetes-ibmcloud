@@ -2,8 +2,10 @@ data "ibm_is_image" "ubuntu" {
   name = "ibm-ubuntu-20-04-minimal-amd64-2"
 }
 
+
 resource "ibm_is_instance" "is_instance" {
-  name    = var.name
+  count             = var.num_masters
+  name    = format("%s%02d", var.name, count.index)
   image   = data.ibm_is_image.ubuntu.id
   profile = "cx2-2x4"
 
@@ -29,6 +31,6 @@ resource "ibm_is_instance" "is_instance" {
 
 resource "ibm_is_floating_ip" "fip" {
   name   = "${var.name}-fip"
-  target = ibm_is_instance.is_instance.primary_network_interface[0].id
+  target = ibm_is_instance.is_instance[0].primary_network_interface[0].id
   resource_group = var.resource_group
 }

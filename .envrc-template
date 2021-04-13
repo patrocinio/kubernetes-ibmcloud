@@ -9,49 +9,17 @@ export RESOURCE_PREFIX="XXX"
 # https://cloud.ibm.com/docs/account?topic=account-userapikey#create_user_key.
 export IC_API_KEY="XXX"
 
-# Run `slcli vs create-options | grep datacenter` for options
-DATACENTER=wdc04
-DOMAIN=patrocinio.org
+# NUM_WORKERS: The number of worker nodes that will be created to run workloads on
+export NUM_WORKERS=1
 
-# SERVER_TYPE: bare for bare metal; anything else for virtual servers
-SERVER_TYPE=virtual
-
-# NUM_NODES: The number of nodes that will be created to run workloads on
-NUM_NODES=1
+# NUM_MASTERS: The number of master nodes 
+export NUM_MASTERS=1
 
 # CPU and memory only apply to virtual servers.
-CPU=2
-MEMORY=2
-
-# OS. Run 'slcli server create-options' for options
-OS=UBUNTU_LATEST
-
-# Size only applies to bare metal servers. Run 'slcli server create-options' for options
-SIZE=S1270_8GB_2X1TBSATA_NORAID
-
-# VLANs
-#PRIVATE_VLAN=835115
-#PUBLIC_VLAN=835113
-
-# VPN Connection
-CONNECTION=NotVPN
-#CONNECTION=VPN
-
-# Public endpoint
-ENDPOINT=https://api.softlayer.com/xmlrpc/v3.1/
-#ENDPOINT=https://api.service.softlayer.com/xmlrpc/v3.1/
-
-# Set to true to force execution of Ubuntu-like environment.
-# Potential issues arise when running on Mac-based platforms and
-# parameter positions.
-FORCE_LINUX=false
-
-# Billing method
-BILLING_METHOD=hourly
-#BILLING_METHOD=monthly
-
-
+export CPU=2
+export MEMORY=2
 
 # DON'T CHANGE THESE LINES.
 export TF_VAR_RESOURCE_PREFIX=${RESOURCE_PREFIX}
 export ANSIBLE_HOST_KEY_CHECKING=False
+export TF_VAR_NUM_MASTERS=${NUM_MASTERS}

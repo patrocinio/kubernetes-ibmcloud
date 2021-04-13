@@ -25,3 +25,7 @@ variable "zone" {
 variable "resource_group" {
   type = string
 }
+
+variable "num_masters" {
+  type = string
+}

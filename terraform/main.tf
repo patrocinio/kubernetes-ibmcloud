@@ -142,10 +142,11 @@ resource "ibm_is_public_gateway" "public-gateway" {
   }
 }
 
-module "is_instance_master01" {
+module "is_instance_masternodes" {
   source = "./modules/is_instance"
 
-  name              = "${var.RESOURCE_PREFIX}-master01"
+  name              = "${var.RESOURCE_PREFIX}-master"
+  num_masters       = var.NUM_MASTERS
   resource_group    = ibm_resource_group.group.id
   subnet_id         = ibm_is_subnet.subnet.id
   security_group_id = ibm_is_vpc.vpc.security_group[0].group_id
