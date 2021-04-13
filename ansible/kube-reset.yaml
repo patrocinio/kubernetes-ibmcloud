@@ -3,8 +3,15 @@
   remote_user: root
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  tasks:
-  - debug: msg="Master IP is {{ master_ip }}"
 
-  - name: Reset the maaster
+  tasks:
+  - name: Reset the master
     shell: kubeadm reset -f
+
+  - name: Get running processes
+    shell: "ps -ef | grep -v grep | grep -w kube | awk '{print $2}'"
+    register: running_processes
+
+  - name: Kill running processes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"

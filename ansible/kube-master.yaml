@@ -4,12 +4,13 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   tasks:
-  - debug: msg="Master IP is {{ master_ip }}"
+  - debug: msg="Master IP is {{ master_private_ip }}"
 
   - include: kubelet.yaml
 
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_ip }} --pod-network-cidr=192.168.0.0/16 --cri-socket /run/containerd/containerd.sock
+    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ master_private_ip }} --pod-network-cidr=192.168.0.0/16 --cri-socket /run/containerd/containerd.sock
+    ignore_errors: yes
 
   - name: Install Calico operator
     shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
@@ -27,13 +28,30 @@
     shell: kubectl taint nodes --all node.kubernetes.io/not-ready-
     ignore_errors: yes
 
-#  - name: Deploy Kube UI
-#    shell: kubectl create -f https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml
-#    ignore_errors: yes
+  - name: Deploy Kube UI
+    shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+  - name: Copy kube config file
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /tmp/kube.config
+      remote_src: yes
+
+  - name: Obtain hostname
+    shell: hostname
+    register: hostname
+
+  - name: Inject public IP in Kube config
+    ansible.builtin.lineinfile:
+      path: /tmp/kube.config
+      regexp: 'server:'
+      line: '    server: https://{{ hostname.stdout }}:6443'
+
+  - debug: msg="Kubernetes URL is https://{{ hostname.stdout }}:6443"
 
   - name: Fetching admin file
     fetch:
-      src: /etc/kubernetes/admin.conf
+      src: /tmp/kube.config
       dest: ~/.kube/config
       flat: yes
 

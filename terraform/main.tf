@@ -49,6 +49,18 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-ssh" {
   }
 }
 
+resource "ibm_is_security_group_rule" "sg-rule-inbound-kube-api" {
+  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+
+  tcp {
+    port_min = 6443
+    port_max = 6443
+  }
+}
+
+/*
 resource "ibm_is_security_group_rule" "sg-rule-inbound-https" {
   group     = ibm_is_vpc.vpc.security_group[0].group_id
   direction = "inbound"
@@ -81,6 +93,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-api2" {
     port_max = 32767
   }
 }
+*/
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
   group     = ibm_is_vpc.vpc.security_group[0].group_id

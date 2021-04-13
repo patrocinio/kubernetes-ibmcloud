@@ -72,7 +72,7 @@ prep_ansible_inventory: get_terraform_show
 
 apply_ansible: prep_ansible_inventory
 	echo Master IP: $(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_ip=$(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')" --key-file "../ssh-keys/ssh-key")
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_private_ip=$(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')" --key-file "../ssh-keys/ssh-key")
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
