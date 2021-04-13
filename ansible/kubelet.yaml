@@ -79,9 +79,13 @@
       - containerd.io
     state: present
 
-- name: Configure containerd
-  command: containerd config default | sudo tee /etc/containerd/config.toml
+- name: Retrieve containerd configuration
+  command: containerd config default 
+  register: containerd_config
 
+- blockinfile: |
+    dest=/etc/containerd/config.toml
+    content="{{ containerd_config.stdout }}"
 
 - name: Use systemd with containerd
   lineinfile:
@@ -129,8 +133,6 @@
     content: | 
       net.bridge.bridge-nf-call-ip6tables = 1
       net.bridge.bridge-nf-call-iptables = 1
-   
-# - meta: end_play
    
 - name: Restart kubelet
   ansible.builtin.systemd:
