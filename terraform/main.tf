@@ -149,7 +149,7 @@ module "is_lb" {
   subnet_id         = ibm_is_subnet.subnet.id
 }
 
-/*
+
 module "is_instance_masternodes" {
   source = "./modules/is_instance"
 
@@ -162,4 +162,3 @@ module "is_instance_masternodes" {
   ssh_key_id        = ibm_is_ssh_key.ssh-key.id
   zone              = var.zone
 }
-*/
