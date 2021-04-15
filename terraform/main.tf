@@ -142,6 +142,14 @@ resource "ibm_is_public_gateway" "public-gateway" {
   }
 }
 
+module "is_lb" {
+  source = "./modules/is_lb"
+
+  name = "${var.RESOURCE_PREFIX}-lb"
+  subnet_id         = ibm_is_subnet.subnet.id
+}
+
+/*
 module "is_instance_masternodes" {
   source = "./modules/is_instance"
 
@@ -154,3 +162,4 @@ module "is_instance_masternodes" {
   ssh_key_id        = ibm_is_ssh_key.ssh-key.id
   zone              = var.zone
 }
+*/
