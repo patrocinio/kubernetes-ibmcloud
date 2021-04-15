@@ -63,20 +63,12 @@ get_terraform_show:
 	(cd terraform && terraform show -json > ../terraform_show.json)
 
 prep_ansible_inventory: get_terraform_show
-	echo > $(HOSTS)
-	echo "[kube-master] " >> $(HOSTS)
-	echo "kube-master-1 " >> $(TEMP_FILE)
-	echo "ansible_host=" >> $(TEMP_FILE)
-	cat terraform_show.json | jq --raw-output .values.outputs.ipaddress_master01_floating.value >> $(TEMP_FILE)
-	echo " ansible_user=root" >> $(TEMP_FILE)
-	paste -s -d '\0' $(TEMP_FILE) >> $(HOSTS)
-	rm $(TEMP_FILE)
+	python prepare_ansible_inventory.py
 
-apply_master:
-	echo Master IP: $(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-master.yaml -e "master_private_ip=$(shell cd terraform && terraform output ipaddress_master01_private | tr -d '"')" --key-file "../ssh-keys/ssh-key")
+apply_first_master: prep_ansible_inventory 
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_ip=$(shell cd terraform && terraform output lb_ip | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
-apply_ansible: prep_ansible_inventory apply_master
+apply_ansible: apply_first_master
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")

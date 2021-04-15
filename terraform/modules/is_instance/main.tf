@@ -30,7 +30,8 @@ resource "ibm_is_instance" "is_instance" {
 }
 
 resource "ibm_is_floating_ip" "fip" {
-  name   = "${var.name}-fip"
-  target = ibm_is_instance.is_instance[0].primary_network_interface[0].id
+  count             = var.num_masters
+  name   = format("%s%02d", var.name, count.index)
+  target = ibm_is_instance.is_instance[count.index].primary_network_interface[0].id
   resource_group = var.resource_group
 }
