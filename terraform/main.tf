@@ -145,8 +145,8 @@ resource "ibm_is_public_gateway" "public-gateway" {
 module "is_lb" {
   source = "./modules/is_lb"
 
-  name = "${var.RESOURCE_PREFIX}-lb"
-  subnet_id         = ibm_is_subnet.subnet.id
+  name      = "${var.RESOURCE_PREFIX}-lb"
+  subnet_id = ibm_is_subnet.subnet.id
 }
 
 
@@ -161,4 +161,12 @@ module "is_instance_masternodes" {
   vpc_id            = ibm_is_vpc.vpc.id
   ssh_key_id        = ibm_is_ssh_key.ssh-key.id
   zone              = var.zone
+}
+
+module "is_lb_pool_member" {
+  source = "./modules/is_lb_pool_member"
+
+  lb_pool_id        = module.is_lb.lb_pool_id
+  lb_id             = module.is_lb.lb_id
+  masters           = module.is_instance_masternodes.instances
 }
