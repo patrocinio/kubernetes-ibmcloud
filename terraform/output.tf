@@ -5,3 +5,7 @@ output "masters" {
 output "lb_ip" {
   value = module.is_lb.lb_ip
 }
+
+output "lb_id" {
+  value = module.is_lb.lb_id
+}
