@@ -38,8 +38,14 @@ resource "ibm_is_subnet" "subnet" {
   }
 }
 
+resource "ibm_is_security_group" "security_group" {
+  vpc = ibm_is_vpc.vpc.id
+  name = "${var.RESOURCE_PREFIX}-sg"
+}
+
 resource "ibm_is_security_group_rule" "sg-rule-inbound-ssh" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
 
@@ -50,7 +56,8 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-ssh" {
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-kube-api" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
 
@@ -96,7 +103,8 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-api2" {
 */
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
 
@@ -106,7 +114,8 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-outbound" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "outbound"
   remote    = "0.0.0.0/0"
 
@@ -119,13 +128,15 @@ resource "ibm_is_security_group_rule" "sg-rule-outbound" {
 # Hosts must have TCP/UDP/ICMP Layer 3 connectivity for all ports across hosts.
 # You cannot block access to certain ports that might block communication across hosts.
 resource "ibm_is_security_group_rule" "sg-rule-inbound-from-the-group" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
   direction = "inbound"
   remote    = ibm_is_vpc.vpc.security_group[0].group_id
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-outbound-to-the-group" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
   direction = "outbound"
   remote    = ibm_is_vpc.vpc.security_group[0].group_id
 }
@@ -147,6 +158,7 @@ module "is_lb" {
 
   name      = "${var.RESOURCE_PREFIX}-lb"
   subnet_id = ibm_is_subnet.subnet.id
+  resource_group    = ibm_resource_group.group.id
 }
 
 
@@ -157,7 +169,7 @@ module "is_instance_masternodes" {
   num_masters       = var.NUM_MASTERS
   resource_group    = ibm_resource_group.group.id
   subnet_id         = ibm_is_subnet.subnet.id
-  security_group_id = ibm_is_vpc.vpc.security_group[0].group_id
+  security_group_id = ibm_is_security_group.security_group.id
   vpc_id            = ibm_is_vpc.vpc.id
   ssh_key_id        = ibm_is_ssh_key.ssh-key.id
   zone              = var.zone

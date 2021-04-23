@@ -10,10 +10,10 @@ export RESOURCE_PREFIX="XXX"
 export IC_API_KEY="XXX"
 
 # NUM_WORKERS: The number of worker nodes that will be created to run workloads on
-export NUM_WORKERS=1
+export TF_VAR_NUM_WORKERS=1
 
-# NUM_MASTERS: The number of master nodes 
-export NUM_MASTERS=1
+# NUM_MASTERS: The number of master nodes
+export TF_VAR_NUM_MASTERS=1
 
 # CPU and memory only apply to virtual servers.
 export CPU=2

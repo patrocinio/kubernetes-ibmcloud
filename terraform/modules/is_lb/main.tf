@@ -1,7 +1,8 @@
 
 resource "ibm_is_lb" "is_lb" {
-  name = var.name
-  subnets = [var.subnet_id]
+  name            = var.name
+  subnets         = [var.subnet_id]
+  resource_group  = var.resource_group
 }
 
 resource "ibm_is_lb_pool" "is_lb_pool" {
