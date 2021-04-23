@@ -1,0 +1,1 @@
+grep master00 /tmp/ansible-hosts | awk '{ print $2 }' | cut -f2 -d=

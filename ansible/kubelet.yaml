@@ -79,6 +79,14 @@
       - containerd.io
     state: present
 
+- name: Remove disabled_plugins line
+  lineinfile:
+    path: "/etc/containerd/config.toml"
+    regexp: "disabled_plugins"
+    state: absent
+
+#- meta: end_play
+
 - name: Retrieve containerd configuration
   command: containerd config default 
   register: containerd_config

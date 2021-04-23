@@ -73,6 +73,8 @@ apply_ansible: apply_first_master
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
 
+ssh_master:
+	ssh -i ssh-keys/ssh-key root@$(shell ./retrieve_master_ip.sh)
 
 all: login_ibmcloud
 	date
