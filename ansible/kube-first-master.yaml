@@ -46,9 +46,9 @@
     ansible.builtin.lineinfile:
       path: /tmp/kube.config
       regexp: 'server:'
-      line: '    server: https://{{ hostname.stdout }}:6443'
+      line: '    server: https://{{ lb_ip }}:6443'
 
-  - debug: msg="Kubernetes URL is https://{{ hostname.stdout }}:6443"
+  - debug: msg="Kubernetes URL is https://{{ lb_ip }}:6443"
 
   - name: Fetching admin file
     fetch:
