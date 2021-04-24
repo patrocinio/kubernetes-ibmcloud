@@ -38,10 +38,6 @@
       dest: /tmp/kube.config
       remote_src: yes
 
-  - name: Obtain hostname
-    shell: hostname
-    register: hostname
-
   - name: Inject public IP in Kube config
     ansible.builtin.lineinfile:
       path: /tmp/kube.config

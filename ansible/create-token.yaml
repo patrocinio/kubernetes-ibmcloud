@@ -1,0 +1,25 @@
+---
+- hosts: first-kube-master
+  remote_user: root
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  tasks:
+  - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
+
+  - name: Create join statement
+    shell: kubeadm token create --print-join-command
+    register: join
+  
+  - debug: msg="Join statement is {{ join.stdout }}"
+
+  - name: Save join
+    copy:
+      dest=/tmp/join
+      content="{{ join.stdout }}"
+
+  - name: Fetch token
+    fetch:
+      src: /tmp/join
+      dest: /tmp/
+      flat: yes
+

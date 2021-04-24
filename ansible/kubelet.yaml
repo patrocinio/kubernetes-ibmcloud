@@ -24,7 +24,7 @@
     state: present
   register: key_added
   until: key_added is not failed
-  retries: 1
+  retries: 2
   delay: 10
 
 - name: Create directory /var/lib/apt/lists/ if it does not exist
