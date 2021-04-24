@@ -66,7 +66,7 @@ prep_ansible_inventory: get_terraform_show
 	python prepare_ansible_inventory.py
 
 apply_first_master: prep_ansible_inventory 
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_ip=$(shell cd terraform && terraform output lb_ip | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
 apply_ansible: apply_first_master
 

@@ -1,5 +1,5 @@
-output "lb_ip" {
-  value = ibm_is_lb.is_lb.public_ips[0]
+output "lb_hostname" {
+  value = ibm_is_lb.is_lb.hostname
 }
 
 output "lb_id" {
