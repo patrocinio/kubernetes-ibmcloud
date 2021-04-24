@@ -16,3 +16,21 @@ resource "ibm_is_lb_pool" "is_lb_pool" {
   health_timeout = 30
   health_type    = "tcp"
 }
+
+resource "null_resource" "is_lb_listener3" {
+    provisioner "local-exec" {
+      command = "ibmcloud  is lb-lc ${ibm_is_lb.is_lb.id} 6443 tcp --default-pool ${ibm_is_lb_pool.is_lb_pool.pool_id}"
+    }
+}
+/*
+resource "ibm_is_lb_listener" "is_lb_listener" {
+  lb                    = ibm_is_lb.is_lb.id
+  port                  = 6443
+  protocol              = "https"
+  certificate_instance  = 
+}
+*/
+
+
+
+

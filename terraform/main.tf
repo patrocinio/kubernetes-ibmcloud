@@ -182,3 +182,4 @@ module "is_lb_pool_member" {
   lb_id             = module.is_lb.lb_id
   masters           = module.is_instance_masternodes.instances
 }
+
