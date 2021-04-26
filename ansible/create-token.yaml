@@ -23,3 +23,21 @@
       dest: /tmp/
       flat: yes
 
+  - name: Copy etc/ca.crt file
+    copy:
+      remote_src: yes
+      src: /etc/kubernetes/pki/etcd/ca.crt
+      dest: /etc/kubernetes/pki/etcd_ca.crt
+
+  - name: Fetch certificate files
+    fetch:
+      src: /etc/kubernetes/pki/{{ item }}
+      dest: /tmp/
+      flat: yes
+    with_items:
+      - ca.crt
+      - sa.key
+      - sa.pub
+      - ca.key
+      - front-proxy-ca.crt
+      - etcd_ca.crt

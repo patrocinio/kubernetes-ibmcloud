@@ -9,7 +9,31 @@
 
 #  - include: kubelet.yaml
 
+  - name: Copy certificate files
+    copy:
+      src: /tmp/{{ item }}
+      dest: /etc/kubernetes/pki/
+    with_items:
+      - ca.crt
+      - sa.key
+      - sa.pub
+      - ca.key
+      - front-proxy-ca.crt
+      - etcd_ca.crt
+
+  - name: Create etcd directory
+    file: 
+      path: /etc/kubernetes/pki/etcd
+      state: directory
+
+  - name: Copy etc/ca.crt file
+    copy:
+      remote_src: yes
+      src: /etc/kubernetes/pki/etcd_ca.crt
+      dest: /etc/kubernetes/pki/etcd/ca.crt
+
+
   - name: Initialize the masters
-    shell: "{{ join }}"
+    shell: "{{ join }} --control-plane"
 
 
