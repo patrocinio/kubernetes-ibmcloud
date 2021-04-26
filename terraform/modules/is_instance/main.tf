@@ -4,7 +4,7 @@ data "ibm_is_image" "ubuntu" {
 
 
 resource "ibm_is_instance" "is_instance" {
-  count             = var.num_masters
+  count   = var.num_masters
   name    = format("%s%02d", var.name, count.index)
   image   = data.ibm_is_image.ubuntu.id
   profile = "cx2-2x4"
