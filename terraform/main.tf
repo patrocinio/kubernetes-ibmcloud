@@ -79,7 +79,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-etcd" {
   }
 }
 
-/*
+
 resource "ibm_is_security_group_rule" "sg-rule-inbound-https" {
   group     = ibm_is_vpc.vpc.security_group[0].group_id
   direction = "inbound"
@@ -112,7 +112,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-api2" {
     port_max = 32767
   }
 }
-*/
+
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
 //  group     = ibm_is_vpc.vpc.security_group[0].group_id
@@ -135,6 +135,13 @@ resource "ibm_is_security_group_rule" "sg-rule-outbound" {
     port_min = 1
     port_max = 65535
   }
+}
+
+resource "ibm_is_security_group_rule" "sg-rule-outbound-all" {
+//  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
+  direction = "outbound"
+  remote    = "0.0.0.0/0"
 }
 
 # Hosts must have TCP/UDP/ICMP Layer 3 connectivity for all ports across hosts.

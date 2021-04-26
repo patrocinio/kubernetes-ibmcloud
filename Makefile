@@ -77,7 +77,7 @@ create_join_stmt:
 apply_other_masters: 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
-apply_ansible: apply_first_master create_join_stmt apply_other_masters
+apply_ansible: apply_first_master config_kubectl create_join_stmt apply_other_masters
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")

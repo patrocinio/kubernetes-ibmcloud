@@ -12,8 +12,9 @@ resource "ibm_is_instance" "is_instance" {
   resource_group = var.resource_group
 
   primary_network_interface {
-    subnet          = var.subnet_id
-    security_groups = [var.security_group_id]
+    subnet            = var.subnet_id
+    security_groups   = [var.security_group_id]
+    allow_ip_spoofing = true
   }
 
   vpc  = var.vpc_id
