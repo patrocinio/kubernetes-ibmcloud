@@ -23,21 +23,24 @@
       dest: /tmp/
       flat: yes
 
-  - name: Copy etc/ca.crt file
-    copy:
-      remote_src: yes
-      src: /etc/kubernetes/pki/etcd/ca.crt
-      dest: /etc/kubernetes/pki/etcd_ca.crt
+  - name: Remove archive file
+    file:
+      path: "/tmp/certs.tgz"
+      state: absent
 
+  - name: Archive certificate files
+    archive:
+      path: 
+      - /etc/kubernetes/pki/ca*
+      - /etc/kubernetes/pki/etcd_*
+      - /etc/kubernetes/pki/front*
+      - /etc/kubernetes/pki/sa*
+      - /etc/kubernetes/pki/etcd/ca*
+      - /etc/kubernetes/pki/etcd/health*
+      dest: /tmp/certs.tgz
+      
   - name: Fetch certificate files
     fetch:
-      src: /etc/kubernetes/pki/{{ item }}
+      src: /tmp/certs.tgz
       dest: /tmp/
       flat: yes
-    with_items:
-      - ca.crt
-      - sa.key
-      - sa.pub
-      - ca.key
-      - front-proxy-ca.crt
-      - etcd_ca.crt

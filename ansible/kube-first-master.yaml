@@ -32,23 +32,4 @@
   - name: Deploy Kube UI
     shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 
-  - name: Copy kube config file
-    ansible.builtin.copy:
-      src: /etc/kubernetes/admin.conf
-      dest: /tmp/kube.config
-      remote_src: yes
-
-  - name: Inject public IP in Kube config
-    ansible.builtin.lineinfile:
-      path: /tmp/kube.config
-      regexp: 'server:'
-      line: '    server: https://{{ lb_hostname }}:6443'
-
-  - debug: msg="Kubernetes URL is https://{{ lb_hostname }}:6443"
-
-  - name: Fetching admin file
-    fetch:
-      src: /tmp/kube.config
-      dest: ~/.kube/config
-      flat: yes
 
