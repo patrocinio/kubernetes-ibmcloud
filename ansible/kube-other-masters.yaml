@@ -14,10 +14,10 @@
       src: /tmp/certs.tgz
       dest: /tmp
 
-#  - name: Create directory /etc/kubernetes/pki/ if it does not exist
-#    ansible.builtin.file:
-#      path: /etc/kubernetes/pki/
-#      state: directory
+  - name: Create directory /etc/kubernetes/pki/ if it does not exist
+    ansible.builtin.file:
+      path: /etc/kubernetes/pki/
+      state: directory
 
   - name: Unarchive certificate files
     unarchive:
