@@ -7,19 +7,24 @@
   - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
   - debug: msg="join is {{ join }}"
 
-#  - include: kubelet.yaml
+  - include: kubelet.yaml
 
   - name: Copy certificate files
     copy:
       src: /tmp/certs.tgz
       dest: /tmp
 
+#  - name: Create directory /etc/kubernetes/pki/ if it does not exist
+#    ansible.builtin.file:
+#      path: /etc/kubernetes/pki/
+#      state: directory
+
   - name: Unarchive certificate files
     unarchive:
       src: /tmp/certs.tgz
       dest: /etc/kubernetes/pki/
 
-#  - name: Initialize the masters
-#    shell: "{{ join }} --control-plane"
+  - name: Initialize the masters
+    shell: "{{ join }} --control-plane"
 
 

@@ -74,7 +74,7 @@ config_kubectl:
 create_join_stmt: 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) create-token.yaml  --key-file "../ssh-keys/ssh-key")
 
-apply_other_masters: 
+apply_other_masters: prep_ansible_inventory
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
 apply_ansible: apply_first_master config_kubectl create_join_stmt apply_other_masters
