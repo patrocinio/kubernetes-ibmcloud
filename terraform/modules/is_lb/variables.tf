@@ -9,3 +9,8 @@ variable "subnet_id" {
 variable "resource_group" {
   type = string
 }
+
+variable "security_group_id" {
+  type = string
+}
+

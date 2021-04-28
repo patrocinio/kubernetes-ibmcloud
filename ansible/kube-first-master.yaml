@@ -10,7 +10,7 @@
   - include: kubelet.yaml
 
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ ansible_default_ipv4.address }} --pod-network-cidr=192.168.0.0/16 --service-cidr=192.1.0.0/16 --cri-socket /run/containerd/containerd.sock --control-plane-endpoint {{ lb_hostname }} --upload-certs
+    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ ansible_default_ipv4.address }} --pod-network-cidr=192.168.0.0/16 --service-cidr=192.1.0.0/16 --cri-socket /run/containerd/containerd.sock --control-plane-endpoint {{ lb_hostname }}:6443 --upload-certs
     ignore_errors: yes
 
   - name: Install Calico operator

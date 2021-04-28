@@ -175,9 +175,10 @@ resource "ibm_is_public_gateway" "public-gateway" {
 module "is_lb" {
   source = "./modules/is_lb"
 
-  name      = "${var.RESOURCE_PREFIX}-lb"
-  subnet_id = ibm_is_subnet.subnet.id
+  name              = "${var.RESOURCE_PREFIX}-lb"
+  subnet_id         = ibm_is_subnet.subnet.id
   resource_group    = ibm_resource_group.group.id
+  security_group_id = ibm_is_security_group.security_group.id
 }
 
 module "is_instance_masters" {
