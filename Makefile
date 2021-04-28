@@ -56,7 +56,8 @@ target_resource_group:
 
 apply_terraform: terraform_init
 	echo RESOURCE_PREFIX: $(RESOURCE_PREFIX)
-	echo NUM_MASTERS: $(NUM_MASTERS)
+	echo NUM_MASTERS: $(TF_VAR_NUM_MASTERS)
+	echo NUM_WORKERS: $(TF_VAR_NUM_WORKERS)
 	(cd terraform && terraform apply -auto-approve)
 
 get_terraform_show:
@@ -84,6 +85,9 @@ kube_reset:
 
 ssh_master:
 	ssh -i ssh-keys/ssh-key root@$(shell ./retrieve_master_ip.sh)
+
+terraform_refresh:
+	(cd terraform && terraform refresh)
 
 all: login_ibmcloud
 	date

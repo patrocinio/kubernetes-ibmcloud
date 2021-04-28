@@ -1,5 +1,9 @@
 output "masters" {
-  value = module.is_instance_masternodes
+  value = module.is_instance_masters
+}
+
+output "workers" {
+  value = module.is_instance_workers
 }
 
 output "lb_hostname" {

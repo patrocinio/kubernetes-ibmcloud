@@ -4,7 +4,7 @@ data "ibm_is_image" "ubuntu" {
 
 
 resource "ibm_is_instance" "is_instance" {
-  count   = var.num_masters
+  count   = var.num_instances
   name    = format("%s%02d", var.name, count.index)
   image   = data.ibm_is_image.ubuntu.id
   profile = "cx2-2x4"
@@ -31,7 +31,7 @@ resource "ibm_is_instance" "is_instance" {
 }
 
 resource "ibm_is_floating_ip" "fip" {
-  count             = var.num_masters
+  count             = var.num_instances
   name   = format("%s%02d", var.name, count.index)
   target = ibm_is_instance.is_instance[count.index].primary_network_interface[0].id
   resource_group = var.resource_group

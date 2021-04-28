@@ -26,6 +26,6 @@ variable "resource_group" {
   type = string
 }
 
-variable "num_masters" {
+variable "num_instances" {
   type = string
 }
