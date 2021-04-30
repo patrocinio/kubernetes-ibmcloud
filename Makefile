@@ -69,6 +69,13 @@ prep_ansible_inventory: get_terraform_show
 apply_first_master: prep_ansible_inventory 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
+kube_ui:  
+	kubectl apply -f kube_resources/kube_ui_service_account.yaml 
+	kubectl apply -f kube_resources/kube_ui_cluster_role_binding.yaml 
+	kubectl delete svc kubernetes-bashboard
+	kubectl apply -f kube_resources/kube_ui_svc.yaml
+	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+
 config_kubectl:  
 	(cd ansible && ansible-playbook -v -i $(HOSTS) configure-kubectl.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
@@ -78,7 +85,10 @@ create_join_stmt:
 apply_other_masters: prep_ansible_inventory
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
-apply_ansible: apply_first_master config_kubectl create_join_stmt apply_other_masters
+first_etcdadm:
+	(cd ansible && ansible-playbook -v -i $(HOSTS) first-etcdadm.yaml  --key-file "../ssh-keys/ssh-key")
+
+apply_ansible: apply_first_master kube_ui config_kubectl create_join_stmt apply_other_masters
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")

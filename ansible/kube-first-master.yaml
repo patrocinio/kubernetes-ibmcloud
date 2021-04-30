@@ -29,7 +29,5 @@
     shell: kubectl taint nodes --all node.kubernetes.io/not-ready-
     ignore_errors: yes
 
-  - name: Deploy Kube UI
-    shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 
 

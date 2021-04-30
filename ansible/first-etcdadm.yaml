@@ -1,0 +1,32 @@
+---
+- hosts: first-kube-master
+  remote_user: root
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  tasks:
+  - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
+
+  - name: Create directory /etc/kubernetes/pki/ if it does not exist
+    ansible.builtin.file:
+      path: /tmp/etcdadm
+      state: directory
+
+  - name: Clone git repository
+    git:
+        repo: https://github.com/kubernetes-sigs/etcdadm.git
+        dest: /tmp/etcdadm
+
+  - name: Install make and go
+    apt: 
+      name:
+      - make
+      - golang-go
+      state: present
+
+  - name: Build etcdadm
+    shell: make etcdadm
+    args:
+        chdir: /tmp/etcdadm
+
+  - name: Create an etcd cluster
+    shell: /tmp/etcdadm/etcdadm init
