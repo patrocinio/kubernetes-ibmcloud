@@ -10,7 +10,7 @@
       src: /tmp/etcd_certs.tgz
       dest: /tmp
 
-  - name: Create directory /etc/kubernetes/pki/ if it does not exist
+  - name: Create directory /etc/etcd/pki/
     ansible.builtin.file:
       path: /etc/etcd/pki
       state: directory
@@ -20,13 +20,18 @@
       src: /tmp/etcd_certs.tgz
       dest: /etc/etcd/pki
 
+  - name: Create directory /tmp/etcdadm
+    ansible.builtin.file:
+      path: /tmp/etcdadm
+      state: directory
+
   - name: Copy etcdadm files
     copy:
       src: /tmp/etcdadm
-      dest: /tmp
+      dest: /tmp/etcdadm
       mode: preserve
 
   - name: Deploy etcd
-    shell: "/tmp/etcdadm join https://{{ first_master_ip }}:2379"
+    shell: "/tmp/etcdadm/etcdadm join https://{{ first_master_ip }}:2379"
 
 

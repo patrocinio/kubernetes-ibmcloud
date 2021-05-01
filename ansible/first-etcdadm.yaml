@@ -54,3 +54,15 @@
       dest: /tmp/
       flat: yes
 
+  - name: Archive certificate peer files
+    archive:
+      path: 
+      - /etc/etcd/pki/peer.* 
+      dest: /tmp/etcd_certs_peer.tgz
+      
+  - name: Fetch certificate peer files
+    fetch:
+      src: /tmp/etcd_certs_peer.tgz
+      dest: /tmp/
+      flat: yes
+  

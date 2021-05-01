@@ -1,0 +1,7 @@
+DIR=/etc/etcd/pki
+
+IP=$(grep master00 /tmp/ansible-hosts | awk '{ print $2 }' | cut -f2 -d=)
+echo Master IP: $IP
+
+set -x
+ssh -i ssh-keys/ssh-key root@$IP "etcdctl --cert-file $DIR/peer.crt --key-file $DIR/peer.key --ca-file $DIR/ca.crt --endpoints https://127.0.0.1:2379 cluster-health"
