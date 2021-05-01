@@ -66,7 +66,7 @@ get_terraform_show:
 prep_ansible_inventory: get_terraform_show
 	python prepare_ansible_inventory.py
 
-apply_first_master: prep_ansible_inventory 
+first_master: prep_ansible_inventory 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
 kube_ui:  
@@ -88,7 +88,7 @@ apply_other_masters: prep_ansible_inventory
 first_etcdadm:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) first-etcdadm.yaml  --key-file "../ssh-keys/ssh-key")
 
-apply_ansible: apply_first_master kube_ui config_kubectl create_join_stmt apply_other_masters
+apply_ansible: first_etcdadm first_master kube_ui config_kubectl create_join_stmt apply_other_masters
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")

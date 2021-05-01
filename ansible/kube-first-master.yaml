@@ -7,12 +7,61 @@
   - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
   - debug: msg="LB hosntmae is {{ lb_hostname }}"
 
-  - include: kubelet.yaml
+#  - include: kubelet.yaml
 
+  # - name: Generate certificates and kubeconfig files
+  #   shell: kubeadm init phase {{ item }} 
+  #   ignore_errors: yes
+  #   with_items:
+  #   - certs
+  #   - kubeconfig
+
+  # - name: Write kubelet settings
+  #   shell: kubeadm init phase kubelet-start --cri-socket /run/containerd/containerd.sock 
+  #   ignore_errors: yes
+
+  # - name: Initialize the master 
+  #   shell: kubeadm init phase {{ item }}
+  #   ignore_errors: yes
+  #   with_items:
+  #   - control-plane
+  #   - etcd
+  #   - upload-config
+  #   - update-certs
+  #   - mark-control-plane
+  #   - bootstrap-token
+  #   - kubelet-finalize
+  #   - addon
+
+  - name: Create kubeadm-config.yaml
+    copy:
+      dest: /tmp/kubeadm-config.yaml
+      content: |
+        apiVersion: kubeadm.k8s.io/v1beta2
+        kind: InitConfiguration
+        nodeRegistration:
+          criSocket: "/var/run/dockershim.sock"
+        ---
+        apiVersion: kubeadm.k8s.io/v1beta2
+        kind: ClusterConfiguration
+        kubernetesVersion: stable
+        controlPlaneEndpoint: {{ lb_hostname }}:6443
+        networking:
+                podSubnet: "192.168.0.0/16"
+                serviceSubnet: "192.1.0.0/16"
+        etcd:
+            external:
+                endpoints:
+                - https://{{ ansible_default_ipv4.address }}:2379
+                caFile: /etc/etcd/pki/ca.crt
+                certFile: /etc/etcd/pki/apiserver-etcd-client.crt
+                keyFile: /etc/etcd/pki/apiserver-etcd-client.key
+
+    
   - name: Initialize the master
-    shell: kubeadm init --token mymymy.kubernetesssssss --apiserver-advertise-address {{ ansible_default_ipv4.address }} --pod-network-cidr=192.168.0.0/16 --service-cidr=192.1.0.0/16 --cri-socket /run/containerd/containerd.sock --control-plane-endpoint {{ lb_hostname }}:6443 --upload-certs
+    shell: kubeadm init --config /tmp/kubeadm-config.yaml --cri-socket /run/containerd/containerd.sock --upload-certs
     ignore_errors: yes
-
+    
   - name: Install Calico operator
     shell: kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
     ignore_errors: yes

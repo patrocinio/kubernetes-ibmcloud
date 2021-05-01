@@ -25,7 +25,7 @@
       src: /tmp/certs.tgz
       dest: /etc/kubernetes/pki/
 
-#  - name: Initialize the masters
-#    shell: "{{ join }} --control-plane"
+  - name: Initialize the masters
+    shell: "{{ join }} --control-plane"
 
 
