@@ -88,6 +88,9 @@ apply_other_masters: prep_ansible_inventory
 first_etcdadm:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) first-etcdadm.yaml  --key-file "../ssh-keys/ssh-key")
 
+other_etcds:
+	(cd ansible && ansible-playbook -v -i $(HOSTS) other-etcds.yaml  --key-file "../ssh-keys/ssh-key" -e "lb_hostname=$(shell cd terraform && terraform output first_master_ip | tr -d '"')")
+
 apply_ansible: first_etcdadm first_master kube_ui config_kubectl create_join_stmt apply_other_masters
 
 kube_reset:
