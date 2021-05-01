@@ -47,4 +47,10 @@
       src: /tmp/etcd_certs.tgz
       dest: /tmp/
       flat: yes
+  
+  - name: Fetch etcdadm
+    fetch:
+      src: /tmp/etcdadm/etcdadm
+      dest: /tmp/
+      flat: yes
 

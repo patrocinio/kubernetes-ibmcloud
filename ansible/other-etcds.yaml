@@ -1,0 +1,32 @@
+---
+- hosts: other-kube-masters
+  serial: 1
+  remote_user: root
+  tasks:
+  - debug: msg="First master IP is {{ first_master_ip }}"
+
+  - name: Copy certificate files
+    copy:
+      src: /tmp/etcd_certs.tgz
+      dest: /tmp
+
+  - name: Create directory /etc/kubernetes/pki/ if it does not exist
+    ansible.builtin.file:
+      path: /etc/etcd/pki
+      state: directory
+
+  - name: Unarchive certificate files
+    unarchive:
+      src: /tmp/etcd_certs.tgz
+      dest: /etc/etcd/pki
+
+  - name: Copy etcdadm files
+    copy:
+      src: /tmp/etcdadm
+      dest: /tmp
+      mode: preserve
+
+  - name: Deploy etcd
+    shell: "/tmp/etcdadm join https://{{ first_master_ip }}:2379"
+
+

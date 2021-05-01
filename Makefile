@@ -66,7 +66,7 @@ get_terraform_show:
 prep_ansible_inventory: get_terraform_show
 	python prepare_ansible_inventory.py
 
-first_master: prep_ansible_inventory 
+first_master: 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
 kube_ui:  
@@ -85,19 +85,19 @@ create_join_stmt:
 apply_other_masters: prep_ansible_inventory
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
-first_etcdadm:
+first_etcdadm: prep_ansible_inventory 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) first-etcdadm.yaml  --key-file "../ssh-keys/ssh-key")
 
 other_etcds:
-	(cd ansible && ansible-playbook -v -i $(HOSTS) other-etcds.yaml  --key-file "../ssh-keys/ssh-key" -e "lb_hostname=$(shell cd terraform && terraform output first_master_ip | tr -d '"')")
+	(cd ansible && ansible-playbook -v -i $(HOSTS) other-etcds.yaml  --key-file "../ssh-keys/ssh-key" -e "first_master_ip=$(shell cd terraform && terraform output first_master_ip | tr -d '"')")
 
-apply_ansible: first_etcdadm first_master kube_ui config_kubectl create_join_stmt apply_other_masters
+apply_ansible: first_etcdadm other_etcds first_master kube_ui config_kubectl create_join_stmt apply_other_masters
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
 
 ssh_master:
-	ssh -i ssh-keys/ssh-key root@$(shell ./retrieve_master_ip.sh)
+	ssh -i ssh-keys/ssh-key root@$(shell ./retrieve_master_ip)
 
 terraform_refresh:
 	(cd terraform && terraform refresh)

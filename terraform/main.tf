@@ -75,7 +75,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-etcd" {
 
   tcp {
     port_min = 2379
-    port_max = 2379
+    port_max = 2380
   }
 }
 
