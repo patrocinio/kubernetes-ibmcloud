@@ -1,0 +1,43 @@
+---
+- hosts: first-kube-master
+  remote_user: root
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  tasks:
+  - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
+
+  - name: Remove archive file
+    file:
+      path: "/tmp/etcd_certs.tgz"
+      state: absent
+
+  - name: Archive certificate files
+    archive:
+      path: 
+      - /etc/etcd/pki/ca.* 
+      dest: /tmp/etcd_certs.tgz
+      
+  - name: Fetch certificate files
+    fetch:
+      src: /tmp/etcd_certs.tgz
+      dest: /tmp/
+      flat: yes
+  
+  - name: Fetch etcdadm
+    fetch:
+      src: /tmp/etcdadm/etcdadm
+      dest: /tmp/
+      flat: yes
+
+  - name: Archive certificate peer files
+    archive:
+      path: 
+      - /etc/etcd/pki/peer.* 
+      dest: /tmp/etcd_certs_peer.tgz
+      
+  - name: Fetch certificate peer files
+    fetch:
+      src: /tmp/etcd_certs_peer.tgz
+      dest: /tmp/
+      flat: yes
+  

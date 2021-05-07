@@ -1,0 +1,7 @@
+---
+- hosts: other-kube-masters
+  remote_user: root
+
+  tasks:
+  - name: Reset etcd
+    shell: /tmp/etcdadm/etcdadm reset
