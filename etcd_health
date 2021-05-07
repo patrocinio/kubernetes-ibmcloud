@@ -5,4 +5,4 @@ make prep_ansible_inventory
 IP=$(grep master00 /tmp/ansible-hosts | awk '{ print $2 }' | cut -f2 -d=)
 echo Master IP: $IP
 
-ssh -i ssh-keys/ssh-key root@$IP "ETCDCTL_API=3 etcdctl --cert $DIR/peer.crt --key $DIR/peer.key --cacert $DIR/ca.crt --endpoints https://127.0.0.1:2379 endpoint health"
+ssh -i ssh-keys/ssh-key root@$IP "ETCDCTL_API=3 etcdctl --cert $DIR/peer.crt --key $DIR/peer.key --cacert $DIR/ca.crt --endpoints https://127.0.0.1:2379 member list"
