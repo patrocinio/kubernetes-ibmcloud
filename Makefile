@@ -49,7 +49,7 @@ ssh-keygen:
 
 login_ibmcloud:
 	# For now, we forcibly select us-east from this list: https://cloud.ibm.com/docs/satellite?topic=satellite-sat-regions.
-	ibmcloud login --apikey $(IC_API_KEY) -r us-east
+	ibmcloud login --apikey $(IC_API_KEY) -r us-south
 
 target_resource_group:
 	ibmcloud target -g $(RESOURCE_PREFIX)-group
@@ -76,13 +76,13 @@ kube_ui:
 	kubectl apply -f kube_resources/kube_ui_svc.yaml
 	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
 
-config_kubectl:  
+config_kubectl:  prep_ansible_inventory
 	(cd ansible && ansible-playbook -v -i $(HOSTS) configure-kubectl.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
 create_join_stmt: 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) create-token.yaml  --key-file "../ssh-keys/ssh-key")
 
-apply_other_masters: prep_ansible_inventory
+apply_other_masters: prep_ansible_inventory create_join_stmt
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
 first_etcdadm: prep_ansible_inventory 
@@ -100,7 +100,7 @@ etcd_reset:
 etcd_reset_other:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) etcd-reset-other.yaml --key-file "../ssh-keys/ssh-key")
 
-apply_ansible: first_etcdadm other_etcds first_master kube_ui config_kubectl create_join_stmt apply_other_masters
+apply_ansible: first_etcdadm other_etcds first_master kube_ui config_kubectl apply_other_masters
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
