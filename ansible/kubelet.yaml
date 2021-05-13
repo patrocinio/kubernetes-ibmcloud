@@ -127,6 +127,9 @@
 
 - name: Install kubeadm
   package: name=kubeadm state=present
+  retries: 2
+  delay: 10
+
 
 - name: Install kubelet
   package: name=kubelet state=present

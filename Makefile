@@ -86,7 +86,7 @@ apply_other_masters: prep_ansible_inventory create_join_stmt
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
 workers: prep_ansible_inventory create_join_stmt
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-workers.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
+	(cd ansible && ansible-playbook -v -i "$(HOSTS)" kube-workers.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
 first_etcdadm: prep_ansible_inventory 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) first-etcdadm.yaml  --key-file "../ssh-keys/ssh-key")
