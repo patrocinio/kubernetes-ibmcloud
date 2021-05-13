@@ -85,6 +85,9 @@ create_join_stmt:
 apply_other_masters: prep_ansible_inventory create_join_stmt
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
 
+workers: prep_ansible_inventory create_join_stmt
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-workers.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)'")
+
 first_etcdadm: prep_ansible_inventory 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) first-etcdadm.yaml  --key-file "../ssh-keys/ssh-key")
 
@@ -100,7 +103,7 @@ etcd_reset:
 etcd_reset_other:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) etcd-reset-other.yaml --key-file "../ssh-keys/ssh-key")
 
-apply_ansible: first_etcdadm other_etcds first_master kube_ui config_kubectl apply_other_masters
+apply_ansible: first_etcdadm other_etcds first_master kube_ui config_kubectl apply_other_masters workers
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
