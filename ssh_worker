@@ -1,0 +1,5 @@
+NUM=$1
+echo SSHing to Worker $NUM
+IP=$(grep worker$NUM /tmp/ansible-hosts | awk '{ print $2 }' | cut -f2 -d=)
+echo IP: $IP
+ssh -i ssh-keys/ssh-key root@$IP
