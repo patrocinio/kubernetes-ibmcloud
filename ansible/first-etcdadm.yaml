@@ -18,6 +18,7 @@
 
   - name: Install make and go
     apt: 
+      update_cache: yes
       name:
       - make
       - golang-go
