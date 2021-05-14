@@ -70,13 +70,8 @@ first_master:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
 kube_ui:  config_kubectl
-	kubectl apply -f kube_resources/kubernetes-dashboard.yaml
-	kubectl apply -f kube_resources/kube_ui_service_account.yaml 
-	kubectl apply -f kube_resources/kube_ui_cluster_role_binding.yaml 
-	kubectl delete svc kubernetes-bashboard
-	kubectl apply -f kube_resources/kube_ui_svc.yaml
-	kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
-
+	./deploy_kube_ui
+	
 config_kubectl:  prep_ansible_inventory
 	(cd ansible && ansible-playbook -v -i $(HOSTS) configure-kubectl.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 

@@ -1,0 +1,18 @@
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml
+
+kubectl delete svc kubernetes-bashboard || echo "Creating Kube UI service"
+kubectl apply -f kube_resources/kube_ui_svc.yaml
+
+one_node=$(kubectl get nodes -o=custom-columns="NAME:.metadata.name" --no-headers=true | head -1)
+echo Node name: $one_node
+
+ip=$(ibmcloud is ips | grep $one_node | awk '{print $2}')
+echo Node IP: $ip
+
+port=$(kubectl get svc -n kubernetes-dashboard kubernetes-dashboard -o jsonpath='{.spec.ports[0].nodePort}')
+
+echo URL: https://$ip:$port
+
+echo Secret:
+kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+
