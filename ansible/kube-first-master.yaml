@@ -7,7 +7,7 @@
   - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
   - debug: msg="LB hosntmae is {{ lb_hostname }}"
 
-#  - include: kubelet.yaml
+  - include: kubelet.yaml
 
   # - name: Generate certificates and kubeconfig files
   #   shell: kubeadm init phase {{ item }} 

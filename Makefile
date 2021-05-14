@@ -69,7 +69,8 @@ prep_ansible_inventory: get_terraform_show
 first_master: 
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
 
-kube_ui:  
+kube_ui:  config_kubectl
+	kubectl apply -f kube_resources/kubernetes-dashboard.yaml
 	kubectl apply -f kube_resources/kube_ui_service_account.yaml 
 	kubectl apply -f kube_resources/kube_ui_cluster_role_binding.yaml 
 	kubectl delete svc kubernetes-bashboard
@@ -103,7 +104,7 @@ etcd_reset:
 etcd_reset_other:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) etcd-reset-other.yaml --key-file "../ssh-keys/ssh-key")
 
-apply_ansible: first_etcdadm other_etcds first_master kube_ui config_kubectl apply_other_masters workers
+apply_ansible: first_etcdadm other_etcds first_master kube_ui apply_other_masters workers
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
