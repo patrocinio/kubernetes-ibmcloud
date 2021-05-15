@@ -184,27 +184,27 @@ module "is_lb" {
 module "is_instance_masters" {
   source = "./modules/is_instance"
 
-  name              = "${var.RESOURCE_PREFIX}-master"
-  num_instances     = var.NUM_MASTERS
-  resource_group    = ibm_resource_group.group.id
-  subnet_id         = ibm_is_subnet.subnet.id
-  security_group_id = ibm_is_security_group.security_group.id
-  vpc_id            = ibm_is_vpc.vpc.id
-  ssh_key_id        = ibm_is_ssh_key.ssh-key.id
-  zone              = var.zone
+  name                = "${var.RESOURCE_PREFIX}-master"
+  num_instances       = var.NUM_MASTERS
+  resource_group      = ibm_resource_group.group.id
+  subnet_id           = ibm_is_subnet.subnet.id
+  security_group_id   = ibm_is_security_group.security_group.id
+  vpc_id              = ibm_is_vpc.vpc.id
+  ssh_key_id          = ibm_is_ssh_key.ssh-key.id
+  zone                = var.zone
 }
 
 module "is_instance_workers" {
   source = "./modules/is_instance"
 
-  name              = "${var.RESOURCE_PREFIX}-worker"
-  num_instances     = var.NUM_WORKERS
-  resource_group    = ibm_resource_group.group.id
-  subnet_id         = ibm_is_subnet.subnet.id
-  security_group_id = ibm_is_security_group.security_group.id
-  vpc_id            = ibm_is_vpc.vpc.id
-  ssh_key_id        = ibm_is_ssh_key.ssh-key.id
-  zone              = var.zone
+  name                = "${var.RESOURCE_PREFIX}-worker"
+  num_instances       = var.NUM_WORKERS
+  resource_group      = ibm_resource_group.group.id
+  subnet_id           = ibm_is_subnet.subnet.id
+  security_group_id   = ibm_is_security_group.security_group.id
+  vpc_id              = ibm_is_vpc.vpc.id
+  ssh_key_id          = ibm_is_ssh_key.ssh-key.id
+  zone                = var.zone
 }
 
 module "is_lb_pool_member" {
@@ -214,4 +214,3 @@ module "is_lb_pool_member" {
   lb_id             = module.is_lb.lb_id
   masters           = module.is_instance_masters.instances
 }
-

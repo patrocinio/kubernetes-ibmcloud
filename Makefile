@@ -66,8 +66,8 @@ get_terraform_show:
 prep_ansible_inventory: get_terraform_show
 	python prepare_ansible_inventory.py
 
-first_master: 
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"')"  --key-file "../ssh-keys/ssh-key")
+first_master: login_ibmcloud prep_ansible_inventory
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-first-master.yaml -e "lb_hostname=$(shell cd terraform && terraform output lb_hostname | tr -d '"') kubelet_port_number=$(KUBELET_PORT_NUMBER)"  --key-file "../ssh-keys/ssh-key")
 
 kube_ui:  config_kubectl
 	./deploy_kube_ui
