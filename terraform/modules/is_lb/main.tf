@@ -7,12 +7,6 @@ resource "ibm_is_lb" "is_lb" {
 
 }
 
-resource "null_resource" "is_lb_listener_destroy" {
-    provisioner "local-exec" {
-      when    = destroy
-      command = "ibmcloud  is lb-ld ${self.triggers.lb_id}"
-    }
-}
 
 resource "ibm_is_lb_pool" "is_lb_pool" {
   name           = var.name
@@ -31,28 +25,11 @@ resource "null_resource" "is_target_region" {
     }
 }
 
-resource "null_resource" "is_lb_listener" {
-    provisioner "local-exec" {
-      command = "ibmcloud  is lb-lc ${ibm_is_lb.is_lb.id} 6443 tcp --default-pool ${ibm_is_lb_pool.is_lb_pool.pool_id}"
-    }
-    provisioner "local-exec" {
-      when    = destroy
-      command = "ibmcloud  is lb-ld ${self.triggers.lb_id}"
-    }
-
-  triggers = {
-      lb_id = ibm_is_lb.is_lb.id
-  }
-}
-
-/*
 resource "ibm_is_lb_listener" "is_lb_listener" {
   lb                    = ibm_is_lb.is_lb.id
   port                  = 6443
-  protocol              = "https"
-  certificate_instance  = 
+  protocol              = "tcp"
 }
-*/
 
 
 
