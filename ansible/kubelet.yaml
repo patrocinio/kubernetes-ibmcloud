@@ -160,22 +160,20 @@
     daemon_reload: yes
     name: kubelet
 
-    #- name: Remove network arguments
-#  replace: 
-#    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-#    regexp: '^(ExecStart.*)\$KUBELET_NETWORK_ARGS(.*)$'
-#    replace: \1\2
-#    backup: yes
-
 - name: Install kubectl
   package: name=kubectl state=present
 
 - name: Install kubenetes-cni
   package: name=kubernetes-cni state=present
 
-#- name: Enable docker
-#  shell: systemctl enable docker && systemctl start docker 
-
 - name: Enable kubelet
   shell: systemctl enable kubelet && systemctl start kubelet
+
+- name: Disable password login
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PasswordAuthentication" line="PasswordAuthentication no" state=present
+
+- name: restart sshd
+  service:
+    name: sshd
+    state: restarted
 
