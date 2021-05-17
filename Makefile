@@ -49,7 +49,7 @@ ssh-keygen:
 
 login_ibmcloud:
 	# For now, we forcibly select us-east from this list: https://cloud.ibm.com/docs/satellite?topic=satellite-sat-regions.
-	ibmcloud login --apikey $(IC_API_KEY) -r us-south
+	ibmcloud login --apikey $(IC_API_KEY) -r us-east
 
 target_resource_group:
 	ibmcloud target -g $(RESOURCE_PREFIX)-group

@@ -1,7 +1,7 @@
 variable "zone" {
   # FIXME: for some reason, "eu-gb-1" does not work as a zone name.
   type    = string
-  default = "us-south-2"
+  default = "us-east"
 }
 
 # These variables are supplied from the .envrc file in TF_VAR_xxx environment

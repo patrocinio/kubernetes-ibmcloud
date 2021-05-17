@@ -21,7 +21,7 @@ resource "ibm_is_lb_pool" "is_lb_pool" {
 
 resource "null_resource" "is_target_region" {
     provisioner "local-exec" {
-      command = "ibmcloud target -r us-south"
+      command = "ibmcloud target -r us-east"
     }
 }
 
