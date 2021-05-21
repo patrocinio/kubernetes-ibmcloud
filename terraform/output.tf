@@ -1,3 +1,4 @@
+/*
 output "masters" {
   value = module.is_instance_masters
 }
@@ -21,3 +22,4 @@ output "lb_pool_id" {
 output "first_master_ip" {
   value = module.is_instance_masters.instances[0].primary_network_interface[0].primary_ipv4_address
 }
+*/

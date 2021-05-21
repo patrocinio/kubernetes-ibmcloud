@@ -8,6 +8,12 @@ provider "ibm" {
 data "ibm_is_images" "ds_images" {
 }
 
+resource "null_resource" "is_target_region" {
+    provisioner "local-exec" {
+      command = "ibmcloud target -r us-south"
+    }
+}
+
 resource "ibm_is_ssh_key" "ssh-key" {
   name           = "${var.RESOURCE_PREFIX}-key"
   public_key     = "ssh-rsa ${var.SSH_PUBLIC_KEY}"
@@ -214,3 +220,4 @@ module "is_lb_pool_member" {
   lb_id             = module.is_lb.lb_id
   masters           = module.is_instance_masters.instances
 }
+
