@@ -1,4 +1,5 @@
 provider "ibm" {
+  region = "us-east"
 }
 
 # https://cloud.ibm.com/docs/vpc?topic=solution-tutorials-vpc-public-app-private-backend
@@ -27,6 +28,7 @@ resource "ibm_resource_group" "group" {
 resource "ibm_is_vpc" "vpc" {
   name           = "${var.RESOURCE_PREFIX}-vpc"
   resource_group = ibm_resource_group.group.id
+  
 }
 
 resource "ibm_is_subnet" "subnet" {

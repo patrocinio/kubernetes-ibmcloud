@@ -75,7 +75,7 @@
     state: directory
     mode: '0755'
 
-- name: Install Containerd
+- name: Install containerd
   apt: 
     name:
 #      - docker-ce
@@ -112,10 +112,12 @@
     name: containerd
       
 - name: Add Kubernetes GPG key
+#  command: wget https://packages.cloud.google.com/apt/doc/apt-key.gpg && apt-key add apt-key.gpg
+#  command: curl -O https://packages.cloud.google.com/apt/doc/apt-key.gpg && apt-key add apt-key.gpg
   command: curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-  register: key_added
-  until: key_added is not failed
-  retries: 1
+#  register: key_added
+#  until: key_added is not failed
+  retries: 8
   delay: 10
 
 
@@ -127,7 +129,7 @@
 
 - name: Install kubeadm
   package: name=kubeadm state=present
-  retries: 2
+  retries: 4
   delay: 10
 
 

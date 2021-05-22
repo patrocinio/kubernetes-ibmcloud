@@ -58,7 +58,10 @@
                 certFile: /etc/etcd/pki/apiserver-etcd-client.crt
                 keyFile: /etc/etcd/pki/apiserver-etcd-client.key
 
-    
+  - name: Pull the image
+    shell: kubeadm config images pull  
+    retries: 1
+  
   - name: Initialize the master
     shell: kubeadm init --config /tmp/kubeadm-config.yaml --cri-socket /run/containerd/containerd.sock --upload-certs
     ignore_errors: yes

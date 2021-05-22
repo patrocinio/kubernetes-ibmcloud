@@ -15,6 +15,7 @@
     git:
         repo: https://github.com/kubernetes-sigs/etcdadm.git
         dest: /tmp/etcdadm
+    retries: 2
 
   - name: Install make and go
     apt: 
@@ -31,4 +32,5 @@
 
   - name: Create an etcd cluster
     shell: /tmp/etcdadm/etcdadm init
+    retries: 1
 
