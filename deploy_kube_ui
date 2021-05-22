@@ -13,6 +13,10 @@ port=$(kubectl get svc -n kubernetes-dashboard kubernetes-dashboard -o jsonpath=
 
 echo URL: https://$ip:$port
 
+kubectl apply -f kube_resources/kube_ui_service_account.yaml
+kubectl apply -f kube_resources/kube_ui_cluster_role_binding.yaml
+
 echo Secret:
-kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/kubernetes-dashboard -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+echo
 

@@ -89,7 +89,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-etcd" {
 
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-https" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
 
@@ -100,7 +100,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-https" {
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-api" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
 
@@ -111,7 +111,7 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-api" {
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-api2" {
-  group     = ibm_is_vpc.vpc.security_group[0].group_id
+  group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
 
@@ -123,7 +123,6 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-api2" {
 
 
 resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
   group     = ibm_is_security_group.security_group.id
   direction = "inbound"
   remote    = "0.0.0.0/0"
@@ -134,7 +133,6 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-outbound" {
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
   group     = ibm_is_security_group.security_group.id
   direction = "outbound"
   remote    = "0.0.0.0/0"
@@ -146,7 +144,6 @@ resource "ibm_is_security_group_rule" "sg-rule-outbound" {
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-outbound-all" {
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
   group     = ibm_is_security_group.security_group.id
   direction = "outbound"
   remote    = "0.0.0.0/0"
@@ -158,14 +155,16 @@ resource "ibm_is_security_group_rule" "sg-rule-inbound-from-the-group" {
   group     = ibm_is_security_group.security_group.id
 //  group     = ibm_is_vpc.vpc.security_group[0].group_id
   direction = "inbound"
-  remote    = ibm_is_vpc.vpc.security_group[0].group_id
+//  remote    = ibm_is_vpc.vpc.security_group[0].group_id
+  remote    = ibm_is_security_group.security_group.id
 }
 
 resource "ibm_is_security_group_rule" "sg-rule-outbound-to-the-group" {
   group     = ibm_is_security_group.security_group.id
 //  group     = ibm_is_vpc.vpc.security_group[0].group_id
   direction = "outbound"
-  remote    = ibm_is_vpc.vpc.security_group[0].group_id
+//  remote    = ibm_is_vpc.vpc.security_group[0].group_id
+  remote    = ibm_is_security_group.security_group.id
 }
 
 resource "ibm_is_public_gateway" "public-gateway" {
