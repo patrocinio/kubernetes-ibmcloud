@@ -9,14 +9,14 @@ resource "ibm_is_lb" "is_lb" {
 
 
 resource "ibm_is_lb_pool" "is_lb_pool" {
-  name           = var.name
-  lb             = ibm_is_lb.is_lb.id
-  algorithm      = "round_robin"
-  protocol       = "tcp"
-  health_delay   = 60
-  health_retries = 5
-  health_timeout = 30
-  health_type    = "tcp"
+  name                = var.name
+  lb                  = ibm_is_lb.is_lb.id
+  algorithm           = "round_robin"
+  protocol            = "tcp"
+  health_delay        = 60
+  health_retries      = 5
+  health_timeout      = 30
+  health_type         = "tcp"
 }
 
 resource "null_resource" "is_target_region" {
@@ -29,6 +29,7 @@ resource "ibm_is_lb_listener" "is_lb_listener" {
   lb                    = ibm_is_lb.is_lb.id
   port                  = 6443
   protocol              = "tcp"
+  default_pool          = var.name
 }
 
 

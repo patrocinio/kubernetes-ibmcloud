@@ -99,7 +99,7 @@ etcd_reset:
 etcd_reset_other:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) etcd-reset-other.yaml --key-file "../ssh-keys/ssh-key")
 
-apply_ansible: first_etcdadm other_etcds first_master kube_ui apply_other_masters workers
+apply_ansible: first_etcdadm other_etcds first_master apply_other_masters workers kube_ui 
 
 kube_reset:
 	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-reset.yaml --key-file "../ssh-keys/ssh-key")
