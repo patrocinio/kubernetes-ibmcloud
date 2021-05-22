@@ -29,7 +29,7 @@ resource "ibm_is_lb_listener" "is_lb_listener" {
   lb                    = ibm_is_lb.is_lb.id
   port                  = 6443
   protocol              = "tcp"
-  default_pool          = var.name
+  default_pool          = ibm_is_lb_pool.is_lb_pool.id
 }
 
 
