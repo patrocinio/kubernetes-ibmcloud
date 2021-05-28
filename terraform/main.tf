@@ -9,195 +9,25 @@ provider "ibm" {
 data "ibm_is_images" "ds_images" {
 }
 
-resource "null_resource" "is_target_region" {
-    provisioner "local-exec" {
-      command = "ibmcloud target -r us-south"
-    }
+module "kube_base" {
+  source = "./modules/kube_base"
+
+  RESOURCE_PREFIX = var.RESOURCE_PREFIX
+  SSH_PUBLIC_KEY  = var.SSH_PUBLIC_KEY
+  zone            = var.zone
 }
 
-resource "ibm_is_ssh_key" "ssh-key" {
-  name           = "${var.RESOURCE_PREFIX}-key"
-  public_key     = "ssh-rsa ${var.SSH_PUBLIC_KEY}"
-  resource_group = ibm_resource_group.group.id
-}
-
-resource "ibm_resource_group" "group" {
-  name = "${var.RESOURCE_PREFIX}-group"
-}
-
-resource "ibm_is_vpc" "vpc" {
-  name           = "${var.RESOURCE_PREFIX}-vpc"
-  resource_group = ibm_resource_group.group.id
-  
-}
-
-resource "ibm_is_subnet" "subnet" {
-  name                     = "${var.RESOURCE_PREFIX}-subnet"
-  vpc                      = ibm_is_vpc.vpc.id
-  resource_group           = ibm_resource_group.group.id
-  total_ipv4_address_count = "256"
-  public_gateway           = ibm_is_public_gateway.public-gateway.id
-  zone                     = var.zone
-
-  //User can configure timeouts
-  timeouts {
-    create = "90m"
-    delete = "30m"
-  }
-}
-
-resource "ibm_is_security_group" "security_group" {
-  vpc = ibm_is_vpc.vpc.id
-  name = "${var.RESOURCE_PREFIX}-sg"
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-ssh" {
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  tcp {
-    port_min = 22
-    port_max = 22
-  }
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-kube-api" {
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  tcp {
-    port_min = 6443
-    port_max = 6443
-  }
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-etcd" {
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  tcp {
-    port_min = 2379
-    port_max = 2380
-  }
-}
-
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-https" {
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  tcp {
-    port_min = 443
-    port_max = 443
-  }
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-api" {
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  tcp {
-    port_min = 30000
-    port_max = 32767
-  }
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-api2" {
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  udp {
-    port_min = 30000
-    port_max = 32767
-  }
-}
-
-
-resource "ibm_is_security_group_rule" "sg-rule-inbound-icmp" {
-  group     = ibm_is_security_group.security_group.id
-  direction = "inbound"
-  remote    = "0.0.0.0/0"
-
-  icmp {
-    type = 8
-  }
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-outbound" {
-  group     = ibm_is_security_group.security_group.id
-  direction = "outbound"
-  remote    = "0.0.0.0/0"
-
-  tcp {
-    port_min = 1
-    port_max = 65535
-  }
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-outbound-all" {
-  group     = ibm_is_security_group.security_group.id
-  direction = "outbound"
-  remote    = "0.0.0.0/0"
-}
-
-# Hosts must have TCP/UDP/ICMP Layer 3 connectivity for all ports across hosts.
-# You cannot block access to certain ports that might block communication across hosts.
-resource "ibm_is_security_group_rule" "sg-rule-inbound-from-the-group" {
-  group     = ibm_is_security_group.security_group.id
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
-  direction = "inbound"
-//  remote    = ibm_is_vpc.vpc.security_group[0].group_id
-  remote    = ibm_is_security_group.security_group.id
-}
-
-resource "ibm_is_security_group_rule" "sg-rule-outbound-to-the-group" {
-  group     = ibm_is_security_group.security_group.id
-//  group     = ibm_is_vpc.vpc.security_group[0].group_id
-  direction = "outbound"
-//  remote    = ibm_is_vpc.vpc.security_group[0].group_id
-  remote    = ibm_is_security_group.security_group.id
-}
-
-resource "ibm_is_public_gateway" "public-gateway" {
-  name           = "${var.RESOURCE_PREFIX}-public-gateway"
-  vpc            = ibm_is_vpc.vpc.id
-  zone           = var.zone
-  resource_group = ibm_resource_group.group.id
-
-  //User can configure timeouts
-  timeouts {
-    create = "90m"
-  }
-}
-
-module "is_lb" {
-  source = "./modules/is_lb"
-
-  name              = "${var.RESOURCE_PREFIX}-lb"
-  subnet_id         = ibm_is_subnet.subnet.id
-  resource_group    = ibm_resource_group.group.id
-  security_group_id = ibm_is_security_group.security_group.id
-}
 
 module "is_instance_masters" {
   source = "./modules/is_instance"
 
   name                = "${var.RESOURCE_PREFIX}-master"
   num_instances       = var.NUM_MASTERS
-  resource_group      = ibm_resource_group.group.id
-  subnet_id           = ibm_is_subnet.subnet.id
-  security_group_id   = ibm_is_security_group.security_group.id
-  vpc_id              = ibm_is_vpc.vpc.id
-  ssh_key_id          = ibm_is_ssh_key.ssh-key.id
+  resource_group      = module.kube_base.resource_group_id
+  subnet_id           = module.kube_base.subnet_id
+  security_group_id   = module.kube_base.security_group_id
+  vpc_id              = module.kube_base.vpc_id
+  ssh_key_id          = module.kube_base.ssh_key_id
   zone                = var.zone
 }
 
@@ -206,19 +36,19 @@ module "is_instance_workers" {
 
   name                = "${var.RESOURCE_PREFIX}-worker"
   num_instances       = var.NUM_WORKERS
-  resource_group      = ibm_resource_group.group.id
-  subnet_id           = ibm_is_subnet.subnet.id
-  security_group_id   = ibm_is_security_group.security_group.id
-  vpc_id              = ibm_is_vpc.vpc.id
-  ssh_key_id          = ibm_is_ssh_key.ssh-key.id
+  resource_group      = module.kube_base.resource_group_id
+  subnet_id           = module.kube_base.subnet_id
+  security_group_id   = module.kube_base.security_group_id
+  vpc_id              = module.kube_base.vpc_id
+  ssh_key_id          = module.kube_base.ssh_key_id
   zone                = var.zone
 }
 
 module "is_lb_pool_member" {
   source = "./modules/is_lb_pool_member"
 
-  lb_pool_id        = module.is_lb.lb_pool_id
-  lb_id             = module.is_lb.lb_id
+  lb_pool_id        = module.kube_base.lb_pool_id
+  lb_id             = module.kube_base.lb_id
   masters           = module.is_instance_masters.instances
 }
 

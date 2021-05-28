@@ -6,7 +6,6 @@
   tasks:
   - debug: msg="Master IP is {{ ansible_default_ipv4.address }}"
   - debug: msg="LB hosntmame is {{ lb_hostname }}"
-  - debug: msg="Kubelet port number is {{ kubelet_port_number }}"
 
   - include: kubelet.yaml
 
