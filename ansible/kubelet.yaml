@@ -1,3 +1,5 @@
+- debug: msg="Kubelet port number is {{ kubelet_port_number }}"
+
 - name: Make the Swap inactive
   command: swapoff -a
 
@@ -141,7 +143,7 @@
     dest: "/etc/systemd/system/kubelet.service.d/0-containerd.conf"
     content: | 
       [Service]                                                 
-      Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
+      Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock --port={{ port_number }}"
 
 - name: Let iptables see bridged traffic - part 1
   copy:
