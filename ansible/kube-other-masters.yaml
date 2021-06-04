@@ -1,6 +1,5 @@
 ---
 - hosts: other-kube-masters
-  serial: 1
   remote_user: root
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
@@ -27,5 +26,7 @@
 
   - name: Initialize the masters
     shell: "{{ join }} --control-plane"
+    ignore_errors: yes
+
 
 

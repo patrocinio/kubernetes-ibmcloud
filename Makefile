@@ -16,10 +16,7 @@ endif
 aggressive_clean: check_clean
 	until make perform_clean; do echo 'Retrying clean...'; sleep 10; done
 
-apply_ansible: first_etcdadm other_etcds first_master apply_other_masters workers kube_ui 
-
-apply_other_masters: prep_ansible_inventory create_join_stmt
-	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)' kubelet_port_number=$(KUBELET_PORT_NUMBER)")
+apply_ansible: first_etcdadm other_etcds first_master other_masters workers kube_ui 
 
 apply_terraform: terraform_init
 	echo RESOURCE_PREFIX: $(RESOURCE_PREFIX)
@@ -60,6 +57,10 @@ get_terraform_show:
 login_ibmcloud:
 	# For now, we forcibly select us-east from this list: https://cloud.ibm.com/docs/satellite?topic=satellite-sat-regions.
 	ibmcloud login --apikey $(IC_API_KEY) -r us-east
+
+other_masters: prep_ansible_inventory create_join_stmt
+	(cd ansible && ansible-playbook -v -i $(HOSTS) kube-other-masters.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)' kubelet_port_number=$(KUBELET_PORT_NUMBER)")
+
 
 install:
 	ibmcloud plugin install container-registry
@@ -109,7 +110,7 @@ watch:
 	./watch_ibmcloud $(RESOURCE_PREFIX)
 
 workers: prep_ansible_inventory create_join_stmt
-	(cd ansible && ansible-playbook -v -i "$(HOSTS)" kube-workers.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)' kubelet_port_number=$(KUBELET_PORT_NUMBER)" -vvv)
+	(cd ansible && ansible-playbook -v -i "$(HOSTS)" kube-workers.yaml --key-file "../ssh-keys/ssh-key" -e "join='$(shell cat /tmp/join)' kubelet_port_number=$(KUBELET_PORT_NUMBER)")
 
 all: login_ibmcloud
 	date
