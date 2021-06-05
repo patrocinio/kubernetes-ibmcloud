@@ -6,7 +6,7 @@ kubectl apply -f kube_resources/kube_ui_svc.yaml
 one_node=$(kubectl get nodes -o=custom-columns="NAME:.metadata.name" --no-headers=true | head -1)
 echo Node name: $one_node
 
-ip=$(ibmcloud is ips | grep $one_node | awk '{print $2}')
+ip=$(ibmcloud is ips | grep $one_node | awk '{print $2}' --resource-group-name $RESOURCE_PREFIX-group)
 echo Node IP: $ip
 
 port=$(kubectl get svc -n kubernetes-dashboard kubernetes-dashboard -o jsonpath='{.spec.ports[0].nodePort}')
