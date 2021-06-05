@@ -22,6 +22,9 @@ export MEMORY=2
 # Kubelet port number
 export KUBELET_PORT_NUMBER=10250
 
+# IBM Cloud region
+export TF_VAR_CLOUD_REGION=us-east
+
 # DON'T CHANGE THESE LINES.
 export TF_VAR_RESOURCE_PREFIX=${RESOURCE_PREFIX}
 export ANSIBLE_HOST_KEY_CHECKING=False

@@ -1,5 +1,5 @@
 provider "ibm" {
-  region = "us-east"
+  region = "${var.CLOUD_REGION}"
 }
 
 # https://cloud.ibm.com/docs/vpc?topic=solution-tutorials-vpc-public-app-private-backend

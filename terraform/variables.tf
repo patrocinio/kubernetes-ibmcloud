@@ -10,3 +10,4 @@ variable "SSH_PUBLIC_KEY" {}
 variable "RESOURCE_PREFIX" {}
 variable "NUM_MASTERS" {}
 variable "NUM_WORKERS" {}
+variable "CLOUD_REGION" {}

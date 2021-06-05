@@ -22,6 +22,7 @@ apply_terraform: terraform_init
 	echo RESOURCE_PREFIX: $(RESOURCE_PREFIX)
 	echo NUM_MASTERS: $(TF_VAR_NUM_MASTERS)
 	echo NUM_WORKERS: $(TF_VAR_NUM_WORKERS)
+	echo CLOUD_REGION: ${TF_VAR_CLOUD_REGION}
 	(cd terraform && terraform apply -auto-approve)
 
 check_clean:
