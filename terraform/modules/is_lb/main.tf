@@ -19,12 +19,6 @@ resource "ibm_is_lb_pool" "is_lb_pool" {
   health_type         = "tcp"
 }
 
-resource "null_resource" "is_target_region" {
-    provisioner "local-exec" {
-      command = "ibmcloud target -r us-south"
-    }
-}
-
 resource "ibm_is_lb_listener" "is_lb_listener" {
   lb                    = ibm_is_lb.is_lb.id
   port                  = 6443
