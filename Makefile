@@ -23,6 +23,7 @@ apply_terraform: terraform_init
 	echo NUM_MASTERS: $(TF_VAR_NUM_MASTERS)
 	echo NUM_WORKERS: $(TF_VAR_NUM_WORKERS)
 	echo CLOUD_REGION: ${TF_VAR_CLOUD_REGION}
+	echo SECOND_DISK_CAPACITY: $(TF_VAR_SECOND_DISK_CAPACITY)
 	(cd terraform && terraform apply -auto-approve)
 
 check_clean:

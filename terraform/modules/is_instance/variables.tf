@@ -29,3 +29,8 @@ variable "resource_group" {
 variable "num_instances" {
   type = string
 }
+
+variable "second_disk_capacity" {
+  type = number
+}
+

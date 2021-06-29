@@ -21,27 +21,29 @@ module "kube_base" {
 module "is_instance_masters" {
   source = "./modules/is_instance"
 
-  name                = "${var.RESOURCE_PREFIX}-master"
-  num_instances       = var.NUM_MASTERS
-  resource_group      = module.kube_base.resource_group_id
-  subnet_id           = module.kube_base.subnet_id
-  security_group_id   = module.kube_base.security_group_id
-  vpc_id              = module.kube_base.vpc_id
-  ssh_key_id          = module.kube_base.ssh_key_id
-  zone                = var.zone
+  name                 = "${var.RESOURCE_PREFIX}-master"
+  num_instances        = var.NUM_MASTERS
+  resource_group       = module.kube_base.resource_group_id
+  subnet_id            = module.kube_base.subnet_id
+  security_group_id    = module.kube_base.security_group_id
+  vpc_id               = module.kube_base.vpc_id
+  ssh_key_id           = module.kube_base.ssh_key_id
+  zone                 = var.zone
+  second_disk_capacity = var.SECOND_DISK_CAPACITY
 }
 
 module "is_instance_workers" {
   source = "./modules/is_instance"
 
-  name                = "${var.RESOURCE_PREFIX}-worker"
-  num_instances       = var.NUM_WORKERS
-  resource_group      = module.kube_base.resource_group_id
-  subnet_id           = module.kube_base.subnet_id
-  security_group_id   = module.kube_base.security_group_id
-  vpc_id              = module.kube_base.vpc_id
-  ssh_key_id          = module.kube_base.ssh_key_id
-  zone                = var.zone
+  name                 = "${var.RESOURCE_PREFIX}-worker"
+  num_instances        = var.NUM_WORKERS
+  resource_group       = module.kube_base.resource_group_id
+  subnet_id            = module.kube_base.subnet_id
+  security_group_id    = module.kube_base.security_group_id
+  vpc_id               = module.kube_base.vpc_id
+  ssh_key_id           = module.kube_base.ssh_key_id
+  zone                 = var.zone
+  second_disk_capacity = var.SECOND_DISK_CAPACITY
 }
 
 module "is_lb_pool_member" {

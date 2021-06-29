@@ -2,6 +2,12 @@ data "ibm_is_image" "ubuntu" {
   name = "ibm-ubuntu-20-04-minimal-amd64-2"
 }
 
+resource "ibm_is_volume" "second_disk" {
+  count   = var.num_instances
+  name    = format("%s%02d-second", var.name, count.index)
+  profile = "10iops-tier"
+  zone    = var.zone
+}
 
 resource "ibm_is_instance" "is_instance" {
   count   = var.num_instances
@@ -28,11 +34,14 @@ resource "ibm_is_instance" "is_instance" {
     update = "60m"
     delete = "60m"
   }
+
+  volumes = [ibm_is_volume.second_disk[count.index].id]
+
 }
 
 resource "ibm_is_floating_ip" "fip" {
   count             = var.num_instances
-  name   = format("%s%02d", var.name, count.index)
-  target = ibm_is_instance.is_instance[count.index].primary_network_interface[0].id
-  resource_group = var.resource_group
+  name              = format("%s%02d", var.name, count.index)
+  target            = ibm_is_instance.is_instance[count.index].primary_network_interface[0].id
+  resource_group    = var.resource_group
 }
